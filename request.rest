@@ -1,0 +1,56 @@
+// REST - REpresentational State Transfer
+
+// resource fetch
+GET http://localhost:3001/users
+Accept: application/xml
+
+###
+
+GET http://localhost:3001/users/G2sfevB3JaUV9ShGD7evX
+
+###
+
+// resource creation
+POST http://localhost:3001/users
+Content-Type: application/json
+
+{
+  "login": "johndoe",
+  "password": "321"
+}
+
+###
+
+// resource creation with resource ID OR resource update by ID
+PUT http://localhost:3001/users/1FDNwrI2zTaoKP7eAGx1B7
+Content-Type: application/json
+
+{
+  "login": "janedoe",
+  "password": "111"
+}
+
+###
+
+// resource update by ID
+PATCH http://localhost:3001/users/yI27PJUxb_6aDf9-y0YfQ
+Content-Type: application/json
+
+{
+  "password": "456"
+}
+
+###
+
+// resource deletion by ID
+DELETE http://localhost:3001/users/QsuK-fjM-Msd7lWTQD8Qq
+
+###
+
+POST http://localhost:3001/login
+Content-Type: application/json
+
+{
+  "login": "johndoe",
+  "password": "321"
+}
