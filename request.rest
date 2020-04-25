@@ -2,14 +2,11 @@
 
 // resource fetch
 GET http://localhost:3001/users
-Accept: application/xml
 
 ###
-
 GET http://localhost:3001/users/G2sfevB3JaUV9ShGD7evX
 
 ###
-
 // resource creation
 POST http://localhost:3001/users
 Content-Type: application/json
@@ -20,7 +17,6 @@ Content-Type: application/json
 }
 
 ###
-
 // resource creation with resource ID OR resource update by ID
 PUT http://localhost:3001/users/1FDNwrI2zTaoKP7eAGx1B7
 Content-Type: application/json
@@ -31,7 +27,6 @@ Content-Type: application/json
 }
 
 ###
-
 // resource update by ID
 PATCH http://localhost:3001/users/yI27PJUxb_6aDf9-y0YfQ
 Content-Type: application/json
@@ -41,12 +36,10 @@ Content-Type: application/json
 }
 
 ###
-
 // resource deletion by ID
 DELETE http://localhost:3001/users/QsuK-fjM-Msd7lWTQD8Qq
 
 ###
-
 POST http://localhost:3001/login
 Content-Type: application/json
 
@@ -54,3 +47,7 @@ Content-Type: application/json
   "login": "johndoe",
   "password": "321"
 }
+
+###
+GET http://localhost:3001/me
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJxM2ZTQWxjd0dRcEdMQTA3aS04SzEiLCJpYXQiOjE1ODc4MjQ3MzF9.SCGTF4vLH26Xt464Ae4zw54geIR0UruEl5NMGxtfzPI

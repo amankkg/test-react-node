@@ -1,10 +1,34 @@
 import express from 'express'
 import {nanoid} from 'nanoid'
 import bcrypt from 'bcrypt'
+import jwt from 'jsonwebtoken'
+import dotenv from 'dotenv'
+
+dotenv.config()
 
 const app = express()
 
 app.use(express.json())
+
+// TODO: implement token refresh, Single Sign-On/In
+const authenticateToken = (req, res, next) => {
+  const authHeader = req.headers['authorization']
+  const token = authHeader?.split(' ')[1]
+
+  if (token == null) return res.sendStatus(401)
+
+  jwt.verify(
+    token,
+    process.env.REACT_APP_API_ACCESS_TOKEN_SECRET,
+    (err, user) => {
+      if (err) return res.sendStatus(403)
+
+      req.userId = user.userId
+
+      next()
+    },
+  )
+}
 
 const users = []
 
@@ -13,7 +37,7 @@ app.get('/users', (req, res) => {
 })
 
 app.get('/users/:id', (req, res) => {
-  const user = users.find(u => u.id === req.params.id)
+  const user = users.find((u) => u.id === req.params.id)
 
   if (user == null) res.status(404).send()
   else res.json(user)
@@ -34,7 +58,7 @@ app.post('/users', async (req, res) => {
 })
 
 app.put('/users/:id', async (req, res) => {
-  const user = users.find(u => u.id === req.params.id)
+  const user = users.find((u) => u.id === req.params.id)
 
   const password = await bcrypt.hash(req.body.password, 10)
 
@@ -53,7 +77,7 @@ app.put('/users/:id', async (req, res) => {
 })
 
 app.delete('/users/:id', (req, res) => {
-  const index = users.findIndex(u => u.id === req.params.id)
+  const index = users.findIndex((u) => u.id === req.params.id)
 
   if (index >= 0) {
     users.splice(-1, 1)
@@ -73,7 +97,13 @@ app.post('/login', async (req, res) => {
 
   try {
     if (await bcrypt.compare(req.body.password, user.password)) {
-      res.status(200).send()
+      const identity = {userId: user.id}
+      const accessToken = jwt.sign(
+        identity,
+        process.env.REACT_APP_API_ACCESS_TOKEN_SECRET,
+      )
+
+      res.status(200).send({accessToken})
     } else {
       res.status(400).send()
     }
@@ -82,4 +112,10 @@ app.post('/login', async (req, res) => {
   }
 })
 
-app.listen(3001)
+app.get('/me', authenticateToken, (req, res) => {
+  const user = users.find((u) => u.id === req.userId)
+
+  res.json(user)
+})
+
+app.listen(process.env.REACT_APP_API_PORT)
