@@ -1,7 +1,7 @@
 const {createProxyMiddleware} = require('http-proxy-middleware')
 
 const options = {
-  target: `http://localhost:${process.env.REACT_APP_API_PORT}`,
+  target: process.env.REACT_APP_API_URL,
   changeOrigin: true,
   pathRewrite: {'^/api': ''},
 }
