@@ -3,10 +3,11 @@
   "private": true,
   "scripts": {
     "client": "react-scripts start",
-    "server": "nodemon src/server.mjs",
-    "start": "run-p client server",
-    "format": "prettier src/**/*.{js,mjs} --write",
-    "test": "react-scripts test"
+    "api:data": "nodemon src/server/data-api.mjs",
+    "api:auth": "nodemon src/server/auth-api.mjs",
+    "start": "run-p client api:data api:auth",
+    "test": "react-scripts test",
+    "format": "prettier src/**/*.{js,mjs} --write"
   },
   "dependencies": {
     "bcrypt": "4.0.1",
