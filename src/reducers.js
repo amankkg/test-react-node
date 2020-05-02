@@ -91,12 +91,15 @@ export const productList = handleActions(
 
       return {...state, entries}
     },
+
     [actions.fetchProductListPending](state, {payload}) {
       return {...state, status: 0}
     },
+
     [actions.fetchProductListSuccess](state, {payload}) {
       return {...state, entries: payload, status: 1}
     },
+
     [actions.fetchProductListFail](state, {payload}) {
       return {...state, status: -1, message: payload}
     },
