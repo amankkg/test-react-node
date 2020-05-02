@@ -1,3 +1,5 @@
+import path from 'path'
+import {promises as fs} from 'fs'
 import express from 'express'
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
@@ -7,20 +9,57 @@ import dotenv from 'dotenv'
 
 dotenv.config()
 
-const ACCESS_TOKEN_SECRET = process.env.API_ACCESS_TOKEN_SECRET
-const REFRESH_TOKEN_SECRET = process.env.API_REFRESH_TOKEN_SECRET
-const API_PORT = process.env.API_PORT
-
 //#region DATA
+const dbFilePath = path.join('db.json')
 
-const refreshTokens = []
-const users = [
-  {
-    id: 'Fqu69F_WSsSqzb1r1Jye1',
-    login: 'johndoe',
-    password: '$2b$10$hA1r0f4tqe5EoTSTl8kDS.GNqlzfgGZ8JdcuXdiunnevyDtGbMLBK',
-  },
-]
+async function fetchDb() {
+  const content = await fs.readFile(dbFilePath)
+  const data = JSON.parse(content)
+
+  return data
+}
+
+async function updateDb(data) {
+  const content = JSON.stringify(data)
+
+  await fs.writeFile(dbFilePath, content)
+}
+
+async function fetchUsers() {
+  const db = await fetchDb()
+
+  return db.users
+}
+
+async function updateUsers(userMap) {
+  const db = await fetchDb()
+
+  db.users = userMap
+
+  await updateDb(db)
+}
+
+async function checkRefreshToken(token) {
+  const db = await fetchDb()
+
+  return db.refreshTokens.includes(token)
+}
+
+async function appendRefreshToken(token) {
+  const db = await fetchDb()
+
+  db.refreshTokens.push(token)
+
+  await updateDb(db)
+}
+
+async function removeRefreshToken(token) {
+  const db = await fetchDb()
+
+  db.refreshTokens = db.refreshTokens.filter((t) => t !== token)
+
+  await updateDb(db)
+}
 
 //#endregion DATA
 
@@ -29,27 +68,29 @@ const app = express()
 app.use(express.json())
 
 //#region AUTH
+const accessTokenSecret = process.env.ACCESS_TOKEN
+const refreshTokenSecret = process.env.REFRESH_TOKEN
+const expiresIn = parseInt(process.env.TOKEN_TTL)
 
-const generateAccessToken = (identity) => {
-  const expiresIn = 24 * 60 * 60
-  const accessToken = jwt.sign(identity, ACCESS_TOKEN_SECRET, {expiresIn})
+function generateAccessToken(identity) {
+  const accessToken = jwt.sign(identity, accessTokenSecret, {expiresIn})
   const expireDate = dayjs().add(expiresIn, 'second').toDate()
 
   return [accessToken, expireDate]
 }
 
-const generateRefreshToken = (identity) => {
-  return jwt.sign(identity, REFRESH_TOKEN_SECRET)
+function generateRefreshToken(identity) {
+  return jwt.sign(identity, refreshTokenSecret)
 }
 
-const authenticateToken = (req, res, next) => {
+function authenticateToken(req, res, next) {
   const authHeader = req.headers['authorization']
   const token = authHeader?.split(' ')[1]
 
   if (token == null) return res.sendStatus(401)
 
-  jwt.verify(token, ACCESS_TOKEN_SECRET, (error, identity) => {
-    if (error) return res.sendStatus(403)
+  jwt.verify(token, accessTokenSecret, (error, identity) => {
+    if (error != null) return res.sendStatus(403).send(error.message)
 
     req.userId = identity.userId
 
@@ -61,33 +102,40 @@ app.post('/signup', async (req, res) => {
   try {
     const password = await bcrypt.hash(req.body.password, 10)
     const id = await nanoid()
+    const userMap = await fetchUsers()
+    const user = {id, login: req.body.login, password, created: new Date()}
 
-    const user = {id, login: req.body.login, password}
+    userMap[id] = user
 
-    users.push(user)
+    await updateUsers(userMap)
 
-    res.status(201).send(user)
+    res.status(201).send()
   } catch {
     res.status(500).send()
   }
 })
 
 app.post('/signin', async (req, res) => {
-  const user = users.find((user) => user.login === req.body.login)
+  const userMap = await fetchUsers()
+  const user = Object.values(userMap).find((u) => u.login === req.body.login)
 
   if (user == null) return res.status(404).send()
 
   try {
-    const passwordComparison = bcrypt.compare(req.body.password, user.password)
+    const passwordsMatch = await bcrypt.compare(
+      req.body.password,
+      user.password,
+    )
 
-    if (await passwordComparison) {
+    if (passwordsMatch) {
       const identity = {userId: user.id}
       const [accessToken, expireDate] = generateAccessToken(identity)
       const refreshToken = generateRefreshToken(identity)
+      const payload = {accessToken, expireDate, refreshToken}
 
-      refreshTokens.push(refreshToken)
+      await appendRefreshToken(refreshToken)
 
-      res.status(200).send({accessToken, expireDate, refreshToken})
+      res.status(200).send(payload)
     } else {
       res.status(400).send()
     }
@@ -96,36 +144,40 @@ app.post('/signin', async (req, res) => {
   }
 })
 
-app.post('/token', (req, res) => {
+app.post('/token', async (req, res) => {
   const refreshToken = req.body.token
 
   if (refreshToken == null) return res.sendStatus(401)
-  if (!refreshTokens.includes(refreshToken)) return res.sendStatus(403)
 
-  jwt.verify(refreshToken, REFRESH_TOKEN_SECRET, (error, identity) => {
+  const exists = await checkRefreshToken(refreshToken)
+
+  if (!exists) return res.sendStatus(403)
+
+  jwt.verify(refreshToken, refreshTokenSecret, (error, identity) => {
     if (error) return res.sendStatus(403)
 
     const newIdentity = {userId: identity.userId}
     const [accessToken, expireDate] = generateAccessToken(newIdentity)
+    const payload = {accessToken, expireDate}
 
-    res.json({accessToken, expireDate})
+    res.json(payload)
   })
 })
 
-app.get('/me', authenticateToken, (req, res) => {
-  const user = users.find((u) => u.id === req.userId)
+app.get('/me', authenticateToken, async (req, res) => {
+  const userMap = await fetchUsers()
+
+  const user = userMap[req.userId]
 
   if (user == null) return res.sendStatus(404)
+
+  delete user.password
 
   res.json(user)
 })
 
-app.delete('/signout', (req, res) => {
-  const tokenIndex = refreshTokens.indexOf(req.body.token)
-
-  if (tokenIndex === -1) return res.sendStatus(404)
-
-  refreshTokens.splice(tokenIndex, 1)
+app.delete('/signout', async (req, res) => {
+  await removeRefreshToken(req.body.token)
 
   return res.sendStatus(204)
 })
@@ -134,12 +186,16 @@ app.delete('/signout', (req, res) => {
 
 //#region USERS
 
-app.get('/users', authenticateToken, (req, res) => {
-  res.json(users)
+app.get('/users', authenticateToken, async (req, res) => {
+  const userMap = await fetchUsers()
+
+  res.json(userMap)
 })
 
-app.get('/users/:id', authenticateToken, (req, res) => {
-  const user = users.find((u) => u.id === req.params.id)
+app.get('/users/:id', authenticateToken, async (req, res) => {
+  const userMap = await fetchUsers()
+
+  const user = userMap[req.params.id]
 
   if (user == null) res.status(404).send()
   else res.json(user)
@@ -149,10 +205,12 @@ app.post('/users', authenticateToken, async (req, res) => {
   try {
     const password = await bcrypt.hash(req.body.password, 10)
     const id = await nanoid()
+    const userMap = await fetchUsers()
+    const user = {id, login: req.body.login, password, created: new Date()}
 
-    const user = {id, login: req.body.login, password}
+    userMap[id] = user
 
-    users.push(user)
+    await updateUsers(userMap)
 
     res.status(201).send(user)
   } catch {
@@ -161,8 +219,8 @@ app.post('/users', authenticateToken, async (req, res) => {
 })
 
 app.put('/users/:id', authenticateToken, async (req, res) => {
-  const user = users.find((u) => u.id === req.params.id)
-
+  const userMap = await fetchUsers()
+  const user = userMap[req.params.id]
   const password = await bcrypt.hash(req.body.password, 10)
 
   if (user != null) {
@@ -173,17 +231,21 @@ app.put('/users/:id', authenticateToken, async (req, res) => {
   } else {
     const user = {id: req.params.id, login: req.body.login, password}
 
-    users.push(user)
+    userMap[req.params.id] = user
+
+    await updateUsers(userMap)
 
     res.status(201).send(user)
   }
 })
 
-app.delete('/users/:id', authenticateToken, (req, res) => {
-  const index = users.findIndex((u) => u.id === req.params.id)
+app.delete('/users/:id', authenticateToken, async (req, res) => {
+  const userMap = await fetchUsers()
 
-  if (index >= 0) {
-    users.splice(-1, 1)
+  if (req.params.id in userMap) {
+    delete userMap[req.params.id]
+
+    await updateUsers(userMap)
 
     res.status(204).send()
   } else {
@@ -193,4 +255,8 @@ app.delete('/users/:id', authenticateToken, (req, res) => {
 
 //#endregion
 
-app.listen(API_PORT)
+const port = process.env.API_PORT
+
+app.listen(port, () => {
+  console.log(`API server running at http://localhost:${port}`)
+})
