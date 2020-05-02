@@ -1,21 +1,21 @@
 {
-  "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJKZjdmazdHcUxoTzlfMDJLWXZ5OUoiLCJpYXQiOjE1ODgwNzk5OTEsImV4cCI6MTU4ODA4MTE5MX0.AgZZVat21u1WWegfsCTrKvYa9uJuIpKiEhC0wVigeJ8",
-  "expireDate": "2020-04-28T13:38:53.486Z",
-  "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJKZjdmazdHcUxoTzlfMDJLWXZ5OUoiLCJpYXQiOjE1ODgwNzk5MzN9.wdw-hgW6D8VbceV7f8UBWxnVi9zBs4EM-ryBDx0_jAY"
+  "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJUWE1qdHhGbUdPS04wLUdtbDloZWciLCJpYXQiOjE1ODg0MTE4MDIsImV4cCI6MTU4ODQxMzAwMn0.L4KtRK3BAszsgQG9UIvXkNshjoo0XfCw8p4vQmh5_Gc",
+  "expireDate": "2020-05-02T09:50:02.548Z",
+  "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJUWE1qdHhGbUdPS04wLUdtbDloZWciLCJpYXQiOjE1ODg0MTE2NzF9.VkS0wlk9yf1FVkx6i_CzrhlgykLpILZBG0XuX2rxiYQ"
 }
 
 # AUTH
 ### me
 GET http://localhost:3001/me
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJKZjdmazdHcUxoTzlfMDJLWXZ5OUoiLCJpYXQiOjE1ODgwNzk5MzMsImV4cCI6MTU4ODA4MTEzM30.5IaVCdcKStWT45ybnVSUh_gDmFofjWZmdXgif7PihHA
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJUWE1qdHhGbUdPS04wLUdtbDloZWciLCJpYXQiOjE1ODg0MTE2NzEsImV4cCI6MTU4ODQxMjg3MX0.h2BEMjDikk_cwql-4cCgvc_xw8C0Tw5HFZl--0CRGfs
 
 ### sign up
 POST http://localhost:3001/signup
 Content-Type: application/json
 
 {
-  "login": "johndoe",
-  "password": "321"
+  "login": "admin",
+  "password": "123"
 }
 
 ### sign in
@@ -23,8 +23,8 @@ POST http://localhost:3001/signin
 Content-Type: application/json
 
 {
-  "login": "johndoe",
-  "password": "321"
+  "login": "admin",
+  "password": "123"
 }
 
 ### refresh token
@@ -32,14 +32,15 @@ POST http://localhost:3001/token
 Content-Type: application/json
 
 {
-  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJKZjdmazdHcUxoTzlfMDJLWXZ5OUoiLCJpYXQiOjE1ODgwNzk5MzN9.wdw-hgW6D8VbceV7f8UBWxnVi9zBs4EM-ryBDx0_jAY"
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJUWE1qdHhGbUdPS04wLUdtbDloZWciLCJpYXQiOjE1ODg0MTE2NzF9.VkS0wlk9yf1FVkx6i_CzrhlgykLpILZBG0XuX2rxiYQ"
 }
 
 ### sign out
 DELETE http://localhost:3001/signout
+Content-Type: application/json
 
 {
-  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJKZjdmazdHcUxoTzlfMDJLWXZ5OUoiLCJpYXQiOjE1ODgwNzk5MzN9.wdw-hgW6D8VbceV7f8UBWxnVi9zBs4EM-ryBDx0_jAY"
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJUWE1qdHhGbUdPS04wLUdtbDloZWciLCJpYXQiOjE1ODg0MTE2NzF9.VkS0wlk9yf1FVkx6i_CzrhlgykLpILZBG0XuX2rxiYQ"
 }
 
 
