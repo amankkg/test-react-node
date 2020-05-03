@@ -1,56 +1,46 @@
-import React, {useState, useEffect} from 'react'
+import React, {useEffect, useMemo} from 'react'
+import {useDispatch, useSelector} from 'react-redux'
 
 import {Emoji} from '../components'
+import {fetchCart} from '../thunks'
 
 // TODO: add total cost
 // TODO: add feature to update entry quantity
 export const Cart = () => {
-  const [entries, setEntries] = useState(null)
-  const [productsMap, setProductsMap] = useState(null)
+  const dispatch = useDispatch()
+  const {productsMap, entriesMap, promoCode} = useSelector((state) => ({
+    entriesMap: state.cart.entries,
+    promoCode: state.cart.promoCode,
+    productsMap: state.productList.entries,
+  }))
+
+  const entries = useMemo(() => Object.entries(entriesMap), [entriesMap])
 
   useEffect(() => {
-    async function fetchCart() {
-      // const response = await fetch('/api/cart')
-      // const entries = await response.json()
+    dispatch(fetchCart())
+  }, [dispatch])
 
-      const entries = [
-        {id: '1', quantity: 2},
-        {id: '2', quantity: 3},
-      ]
+  const loaded =
+    entries && productsMap && Object.entries(productsMap).length > 0
 
-      setEntries(entries)
-    }
+  return loaded ? (
+    <div>
+      <ul>
+        {entries.map(([id, quantity], i) => {
+          const product = productsMap[id]
+          const cost = product.price * quantity
 
-    async function fetchProducts() {
-      // const response = await fetch('/api/products')
-      // const products = await response.json()
-      // const productsMap = new Map(...products)
-
-      const productsMap = new Map([
-        ['1', {id: '1', title: 'Foo', price: 42, quantity: 17}],
-        ['2', {id: '2', title: 'Bar', price: 17, quantity: 42}],
-      ])
-
-      setProductsMap(productsMap)
-    }
-
-    fetchCart()
-    fetchProducts()
-  }, [])
-
-  return entries && productsMap ? (
-    <ul>
-      {entries.map(({id, quantity}, i) => {
-        const product = productsMap.get(id)
-        const cost = product.price * quantity
-
-        return (
-          <li key={id}>
-            {i + 1}) {product.title} ${product.price} * {quantity} pcs = ${cost}
-          </li>
-        )
-      })}
-    </ul>
+          return (
+            <li key={id}>
+              {i + 1}) {product.title} ${product.price} * {quantity} pcs = $
+              {cost}
+            </li>
+          )
+        })}
+      </ul>
+      <label htmlFor="promoCode">Promo code</label>
+      <input id="promoCode" value={promoCode} readOnly />
+    </div>
   ) : (
     <p>
       cart is empty <Emoji label="woman shrugs" content="🤷‍♀️" />

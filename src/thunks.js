@@ -1,4 +1,4 @@
-import {fetchProductListSuccess} from './actions'
+import {fetchProductListSuccess, fetchCartSuccess} from './actions'
 
 export const fetchProductList = () => async (dispatch) => {
   // const response = await fetch('/api/products')
@@ -11,4 +11,15 @@ export const fetchProductList = () => async (dispatch) => {
   }
 
   dispatch(fetchProductListSuccess(items))
+}
+
+export const fetchCart = () => async (dispatch) => {
+  // const response = await fetch('/api/cart')
+  // const entries = await response.json()
+
+  // TODO: use real data
+  const entries = {1: 5, 2: 3}
+  const promoCode = ''
+
+  dispatch(fetchCartSuccess({entries, promoCode}))
 }

@@ -8,3 +8,5 @@ export const fetchProductListSuccess = createAction(
   'FETCH_PRODUCT_LIST_SUCCESS',
 )
 export const fetchProductListFail = createAction('FETCH_PRODUCT_LIST_FAIL')
+
+export const fetchCartSuccess = createAction('FETCH_CART_SUCCESS')
