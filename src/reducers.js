@@ -28,15 +28,9 @@ export const cart = handleActions(
       const {id, value} = action.payload
 
       if (id in state.entries) {
-        const nextState = {
-          ...state,
-          entries: {
-            ...state.entries,
-            [id]: value,
-          },
-        }
+        const entries = {...state.entries, [id]: value}
 
-        return nextState
+        return {...state, entries}
       }
 
       return state
@@ -50,7 +44,7 @@ export const cart = handleActions(
       return {...state, entries}
     },
 
-    [actions.fetchCartPending]: (state) => ({...state, status: 1}),
+    [actions.fetchCartStart]: (state) => ({...state, status: 1}),
 
     [actions.fetchCartSuccess](state, action) {
       const {entries, promoCode} = action.payload
@@ -62,6 +56,13 @@ export const cart = handleActions(
         status: 2,
       }
     },
+
+    [actions.processCart]: (state) => ({
+      ...state,
+      message: defaultCartState.message,
+      promoCode: defaultCartState.promoCode,
+      entries: defaultCartState.entries,
+    }),
 
     [actions.fetchCartFail](state, action) {
       const {message} = action.payload
@@ -80,31 +81,38 @@ const defaultProductListState = {
 
 export const productList = handleActions(
   {
-    [actions.processCart](state, {payload}) {
+    [actions.processCart](state, action) {
       const entries = {...state.entries}
 
-      for (const [id, quantity] of Object.entries(payload.entries)) {
-        if (id in entries) entries[id] -= quantity
+      for (const [id, value] of Object.entries(action.payload.entries)) {
+        if (id in entries) {
+          const {quantity, ...entry} = entries[id]
+
+          entry.quantity = quantity - value
+
+          if (entry.quantity <= 0) delete entries[id]
+          else entries[id] = entry
+        }
       }
 
       return {...state, entries}
     },
 
-    [actions.fetchProductListPending]: (state) => ({
+    [actions.fetchProductListStart]: (state) => ({
       ...state,
       status: 1,
     }),
 
-    [actions.fetchProductListSuccess]: (state, {payload}) => ({
+    [actions.fetchProductListSuccess]: (state, action) => ({
       ...state,
-      entries: payload.entries,
+      entries: action.payload.entries,
       status: 2,
     }),
 
-    [actions.fetchProductListFail]: (state, {payload}) => ({
+    [actions.fetchProductListFail]: (state, action) => ({
       ...state,
       status: -1,
-      message: payload,
+      message: action.payload.message,
     }),
   },
   defaultProductListState,
