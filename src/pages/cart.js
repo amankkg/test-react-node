@@ -2,44 +2,48 @@ import React, {useEffect, useMemo} from 'react'
 import {useDispatch, useSelector} from 'react-redux'
 
 import {Emoji} from '../components'
-import {fetchCart} from '../thunks'
+import {fetchCart, fetchProductList} from '../thunks'
 
 // TODO: add total cost
 // TODO: add feature to update entry quantity
 export const Cart = () => {
   const dispatch = useDispatch()
-  const {productsMap, entriesMap, promoCode} = useSelector((state) => ({
+  const state = useSelector((state) => ({
     entriesMap: state.cart.entries,
     promoCode: state.cart.promoCode,
     productsMap: state.productList.entries,
+    cartFetchStatus: state.cart.status,
+    productsFetchStatus: state.productList.status,
   }))
 
-  const entries = useMemo(() => Object.entries(entriesMap), [entriesMap])
+  const entries = useMemo(() => Object.entries(state.entriesMap), [
+    state.entriesMap,
+  ])
 
   useEffect(() => {
-    dispatch(fetchCart())
-  }, [dispatch])
+    if (state.cartFetchStatus === 0) dispatch(fetchCart())
+    if (state.productsFetchStatus === 0) dispatch(fetchProductList())
+  }, [dispatch, state.cartFetchStatus, state.productsFetchStatus])
 
-  const loaded =
-    entries && productsMap && Object.entries(productsMap).length > 0
+  const ready = state.cartFetchStatus === 2 && state.productsFetchStatus === 2
 
-  return loaded ? (
+  return ready ? (
     <div>
+      <h1>Cart</h1>
       <ul>
         {entries.map(([id, quantity], i) => {
-          const product = productsMap[id]
+          const product = state.productsMap[id]
           const cost = product.price * quantity
 
           return (
             <li key={id}>
-              {i + 1}) {product.title} ${product.price} * {quantity} pcs = $
-              {cost}
+              {product.title} ${product.price} * {quantity} pcs = ${cost}
             </li>
           )
         })}
       </ul>
       <label htmlFor="promoCode">Promo code</label>
-      <input id="promoCode" value={promoCode} readOnly />
+      <input id="promoCode" value={state.promoCode} disabled />
     </div>
   ) : (
     <p>

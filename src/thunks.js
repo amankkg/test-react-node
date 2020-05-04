@@ -21,5 +21,5 @@ export const fetchCart = () => async (dispatch) => {
   const entries = {1: 5, 2: 3}
   const promoCode = ''
 
-  dispatch(fetchCartSuccess({entries, promoCode}))
+  dispatch(fetchCartSuccess(entries, promoCode))
 }
