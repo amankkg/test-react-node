@@ -17,7 +17,7 @@ export const cart = handleActions(
         ...state,
         entries: {
           ...state.entries,
-          [id]: (state.entries[id] += quantity),
+          [id]: quantity + (state.entries[id] ?? 0),
         },
       }
 
