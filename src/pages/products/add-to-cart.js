@@ -17,7 +17,7 @@ export const AddToCart = ({value, max, onChange, onAdd}) => {
       <input
         type="number"
         value={value}
-        onChange={(event) => onChange(event.currentTarget.value)}
+        onChange={(event) => onChange(parseInt(event.currentTarget.value))}
         min={1}
         max={max}
       />
