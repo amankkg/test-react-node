@@ -46,7 +46,7 @@ app.post('/signin', async (req, res) => {
   const userMap = await db.fetchUsers()
   const user = Object.values(userMap).find((u) => u.login === req.body.login)
 
-  if (user == null) return res.status(404).send()
+  if (user == null) return res.status(400).send()
 
   try {
     const passwordsMatch = await bcrypt.compare(

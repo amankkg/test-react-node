@@ -1,4 +1,6 @@
 export {Home} from './home'
 export {NotFound} from './not-found'
+export {SignIn} from './sign-in'
+export {SignUp} from './sign-up'
 export {Products} from './products'
 export {Cart} from './cart'
