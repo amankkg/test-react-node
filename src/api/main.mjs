@@ -104,8 +104,8 @@ app.delete('/users/:id', authenticateToken, async (req, res) => {
   }
 })
 
-const port = process.env.DATA_API_PORT
+const port = process.env.MAIN_API_PORT
 
 app.listen(port, () => {
-  console.log(`Data API server running at http://localhost:${port}`)
+  console.log(`Main API server running at http://localhost:${port}`)
 })

@@ -16,10 +16,10 @@ Live demo TODO: (admin login:password is `admin`:`123`)
 ## npm scripts
 
 - `npm ci` - install dependencies
+- `npm run api-main` - run backend for main API in watch mode
+- `npm run api-auth` - run backend for auth API in watch mode
 - `npm run client` - run frontend in watch mode
-- `npm run api:data` - run backend for data API in watch mode
-- `npm run api:auth` - run backend for auth API in watch mode
-- `npm run start` or `npm start` - run scripts `client`, `api:data`, and `api:auth` simultaneously
+- `npm run start` or `npm start` - run scripts `client`, `api-main`, and `api-auth` simultaneously
 - `npm run test` or `npm t` - run tests in watch mode
 - `npm run format` - format all source code
 
@@ -27,15 +27,15 @@ Live demo TODO: (admin login:password is `admin`:`123`)
 
 ```dosini
 # client
-REACT_APP_DATA_API_URL=your_data_backend_api_url
+REACT_APP_MAIN_API_URL=your_main_backend_api_url
 REACT_APP_AUTH_API_URL=your_auth_backend_api_url
 
 # client proxy for development
-REACT_APP_DATA_API_PROXY_TARGET=your_data_api_target_for_proxy
+REACT_APP_MAIN_API_PROXY_TARGET=your_main_api_target_for_proxy
 REACT_APP_AUTH_API_PROXY_TARGET=your_auth_api_target_for_proxy
 
 # server
-DATA_API_PORT=your_data_backend_api_port
+MAIN_API_PORT=your_main_backend_api_port
 AUTH_API_PORT=your_auth_backend_api_port
 ACCESS_TOKEN=your_api_access_token
 REFRESH_TOKEN=your_auth_api_refresh_token
@@ -56,9 +56,9 @@ TOKEN_TTL=token_time_to_live_in_seconds
 ### Frontend
 
 - `./public/*` - static content
-- `./src/api/*` - services to work with backend APIs
 - `./src/components/*/*.{js,scss}` - re-usable components: unaware of Redux store/actions/thunks, styles are local only
 - `./src/pages/*/*.{js,scss}` - app pages: components, styles are local, rely on Redux store/actions/thunks
+- `./src/services/*` - services to interact with external APIs (backend, localStorage, etc.)
 - `./src/actions/*` - actions
 - `./src/thunks/*` - thunks
 - `./src/reducers/*` - reducers
@@ -69,7 +69,7 @@ TOKEN_TTL=token_time_to_live_in_seconds
 
 ### Backend
 
-- `./src/server/auth-api.mjs` - auth API server
-- `./src/server/data-api.mjs` - data API server
-- `./src/server/db.json` - database storage
-- `./src/server/dbal.mjs` - database access layer
+- `./src/api/auth.mjs` - auth API server
+- `./src/api/main.mjs` - main API server
+- `./src/api/db.json` - database storage
+- `./src/api/dbal.mjs` - database access layer

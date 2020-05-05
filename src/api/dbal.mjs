@@ -1,7 +1,7 @@
 import path from 'path'
 import {promises as fs} from 'fs'
 
-const dbFilePath = path.join('./src/server/db.json')
+const dbFilePath = path.join('./src/api/db.json')
 
 export async function fetchDb() {
   const content = await fs.readFile(dbFilePath)
