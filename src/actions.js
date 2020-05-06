@@ -1,44 +1,40 @@
-import {createAction} from 'redux-actions'
+import {createActions} from 'redux-actions'
 
-//#region PRODUCT LIST
-export const processCart = createAction('PROCESS_CART', (entries) => ({
-  entries,
-}))
+const messagePayload = (message) => ({message})
 
-export const fetchProductListStart = createAction('FETCH_PRODUCT_LIST_PENDING')
-
-export const fetchProductListSuccess = createAction(
-  'FETCH_PRODUCT_LIST_SUCCEEDED',
-  (entries) => ({entries}),
-)
-
-export const fetchProductListFail = createAction(
-  'FETCH_PRODUCT_LIST_FAILED',
-  (message) => ({message}),
-)
-//#endregion
-
-//#region CART
-export const addToCart = createAction('ADD_TO_CART', (id, quantity) => ({
-  id,
-  quantity,
-}))
-
-export const updateQuantity = createAction('UDPATE_QUANTITY', (id, value) => ({
-  id,
-  value,
-}))
-
-export const deleteEntry = createAction('DELETE_ENTRY', (id) => ({id}))
-
-export const fetchCartStart = createAction('FETCH_CART_PENDING')
-
-export const fetchCartSuccess = createAction(
-  'FETCH_CART_SUCCEEDED',
-  (entries, promoCode) => ({entries, promoCode}),
-)
-
-export const fetchCartFail = createAction('FETCH_CART_FAILED', (message) => ({
-  message,
-}))
-//#endregion
+export const {cart, products, account} = createActions({
+  ACCOUNT: {
+    PURCHASE: {
+      START: undefined,
+      OK: (entries) => ({entries}),
+      FAIL: messagePayload,
+    },
+    FETCH: {
+      START: undefined,
+      OK: (profile) => ({profile}),
+      FAIL: messagePayload,
+    },
+    SIGN_IN: {
+      START: undefined,
+      OK: (refreshToken, accessToken, expireDate) => ({
+        refreshToken,
+        accessToken,
+        expireDate,
+      }),
+      FAIL: messagePayload,
+    },
+  },
+  CART: {
+    ADD_TO: (id, quantity) => ({id, quantity}),
+    UPDATE_ENTRY: (id, quantity) => ({id, quantity}),
+    DELETE_ENTRY: (id) => ({id}),
+    UPDATE_PROMO: (promoCode) => ({promoCode}),
+  },
+  PRODUCTS: {
+    FETCH: {
+      START: undefined,
+      OK: (entries) => ({entries}),
+      FAIL: messagePayload,
+    },
+  },
+})
