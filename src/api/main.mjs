@@ -4,7 +4,7 @@ import jwt from 'jsonwebtoken'
 import {nanoid} from 'nanoid/async'
 import dotenv from 'dotenv'
 
-import * as db from './dbal.mjs'
+import * as db from './db.mjs'
 
 dotenv.config()
 

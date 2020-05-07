@@ -53,6 +53,7 @@ TOKEN_TTL=token_time_to_live_in_seconds
 - `./src/setupTests.js` - unit test settings for Create React App
 - `./src/*/*.test.js` - unit tests for given file (e.g. `foo.js` and `foo.test.js`)
 - `./__tests__/*` - end-to-end tests
+- `./temp-db.json` - local database file, not tracked
 
 ### Frontend
 
@@ -60,17 +61,15 @@ TOKEN_TTL=token_time_to_live_in_seconds
 - `./src/components/*/*.{js,scss}` - re-usable components: unaware of Redux store/actions/thunks, styles are local only
 - `./src/pages/*/*.{js,scss}` - app pages: components, styles are local, rely on Redux store/actions/thunks
 - `./src/services/*` - services to interact with external APIs (backend, localStorage, etc.)
-- `./src/actions/*` - actions
-- `./src/thunks/*` - thunks
-- `./src/reducers/*` - reducers
+- `./src/actions` - Redux: actions
+- `./src/thunks/*` - Redux: thunks
+- `./src/store/*` - Redux: reducers and store
 - `./src/index.js` - app entry point
 - `./src/index.scss` - global styles and shared classes/variables
 - `./src/app.js` - main App component with configured React Router and Redux
-- `./src/store.js` - Redux store
 
 ### Backend
 
 - `./src/api/auth.mjs` - auth API server
 - `./src/api/main.mjs` - main API server
-- `./src/api/db.json` - database storage
-- `./src/api/dbal.mjs` - database access layer
+- `./src/api/db.mjs` - database access layer

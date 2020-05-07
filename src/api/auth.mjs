@@ -5,7 +5,7 @@ import {nanoid} from 'nanoid/async'
 import dayjs from 'dayjs'
 import dotenv from 'dotenv'
 
-import * as db from './dbal.mjs'
+import * as db from './db.mjs'
 
 dotenv.config()
 
