@@ -1,16 +1,23 @@
 import {handleActions} from 'redux-actions'
 
 import * as on from '../actions'
+import {statuses} from '../constants'
+import {handleStartedAction, handleFinishedAction} from './helpers'
 
 const defaultState = {
   entries: {},
-  message: null,
-  status: 0, // -1 - fetch error, 0 - idle, 1 - fetching, 2 - fetched
+  status: statuses.IDLE,
+  error: null,
 }
 
-export const productList = handleActions(
+export const products = handleActions(
   {
-    [on.account.purchase.ok]: (state, action) => {
+    [on.products.fetch.started]: handleStartedAction,
+    [on.products.fetch.finished]: handleFinishedAction,
+
+    [on.cart.purchase.finished]: (state, action) => {
+      if (action.error) return state
+
       const entries = {...state.entries}
 
       for (const [id, value] of Object.entries(action.payload.entries)) {
@@ -26,23 +33,6 @@ export const productList = handleActions(
 
       return {...state, entries}
     },
-
-    [on.products.fetch.start]: (state) => ({
-      ...state,
-      status: 1,
-    }),
-
-    [on.products.fetch.ok]: (state, action) => ({
-      ...state,
-      entries: action.payload.entries,
-      status: 2,
-    }),
-
-    [on.products.fetch.fail]: (state, action) => ({
-      ...state,
-      status: -1,
-      message: action.payload.message,
-    }),
   },
   defaultState,
 )

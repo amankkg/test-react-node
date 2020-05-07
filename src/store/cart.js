@@ -1,16 +1,18 @@
 import {handleActions} from 'redux-actions'
 
 import * as on from '../actions'
+import {statuses} from '../constants'
+import {handleStartedAction, handleFinishedAction} from './helpers'
 
 const defaultState = {
   entries: {},
   promoCode: '',
+  purchaseStatus: statuses.IDLE,
 }
 
 export const cart = handleActions(
   {
-    [on.cart.addTo]: (state, action) => {
-      const {id, quantity} = action.payload
+    [on.cart.entryAdded]: (state, {payload: {id, quantity}}) => {
       const nextState = {
         ...state,
         entries: {
@@ -22,32 +24,41 @@ export const cart = handleActions(
       return nextState
     },
 
-    [on.cart.updateEntry]: (state, action) => {
-      const {id, value} = action.payload
+    [on.cart.entryUpdated]: (state, {id, quantity}) => ({
+      ...state,
+      entries: {...state.entries, [id]: quantity},
+    }),
 
-      if (id in state.entries) {
-        const entries = {...state.entries, [id]: value}
-
-        return {...state, entries}
-      }
-
-      return state
-    },
-
-    [on.cart.deleteEntry]: (state, action) => {
+    [on.cart.entryRemoved]: (state, {payload: {id}}) => {
       const entries = {...state.entries}
 
-      delete entries[action.payload.id]
+      delete entries[id]
 
       return {...state, entries}
     },
 
-    [on.cart.updatePromo]: (state, action) => ({
+    [on.cart.promoUpdated]: (state, {payload: {value}}) => ({
       ...state,
-      promoCode: action.payload.promoCode,
+      promoCode: value,
     }),
 
-    [on.account.purchase.ok]: () => defaultState,
+    [on.cart.purchase.started]: (state, action) => {
+      const {status, ...nextState} = handleStartedAction(state)
+
+      nextState.purchaseStatus = status
+
+      return nextState
+    },
+
+    [on.cart.purchase.finished]: (state, action) => {
+      const {status, ...nextState} = handleFinishedAction(state, action)
+
+      nextState.purchaseStatus = status
+
+      return nextState
+    },
+
+    [on.account.signedOut]: () => defaultState,
   },
   defaultState,
 )

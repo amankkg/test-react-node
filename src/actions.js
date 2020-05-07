@@ -1,40 +1,26 @@
 import {createActions} from 'redux-actions'
 
-const messagePayload = (message) => ({message})
+const asyncActions = {
+  STARTED: undefined,
+  FINISHED: undefined,
+}
 
 export const {cart, products, account} = createActions({
   ACCOUNT: {
-    PURCHASE: {
-      START: undefined,
-      OK: (entries) => ({entries}),
-      FAIL: messagePayload,
-    },
-    FETCH: {
-      START: undefined,
-      OK: (profile) => ({profile}),
-      FAIL: messagePayload,
-    },
-    SIGN_IN: {
-      START: undefined,
-      OK: (refreshToken, accessToken, expireDate) => ({
-        refreshToken,
-        accessToken,
-        expireDate,
-      }),
-      FAIL: messagePayload,
-    },
+    FETCH: asyncActions,
+    SIGN_IN: asyncActions,
+    SIGN_UP: asyncActions,
+    SIGNED_OUT: undefined,
+    TOKEN_REFRESH: asyncActions,
   },
   CART: {
-    ADD_TO: (id, quantity) => ({id, quantity}),
-    UPDATE_ENTRY: (id, quantity) => ({id, quantity}),
-    DELETE_ENTRY: (id) => ({id}),
-    UPDATE_PROMO: (promoCode) => ({promoCode}),
+    ENTRY_ADDED: (id, quantity) => ({id, quantity}),
+    ENTRY_UPDATED: (id, quantity) => ({id, quantity}),
+    ENTRY_REMOVED: (id) => ({id}),
+    PROMO_UPDATED: (value) => ({value}),
+    PURCHASE: asyncActions,
   },
   PRODUCTS: {
-    FETCH: {
-      START: undefined,
-      OK: (entries) => ({entries}),
-      FAIL: messagePayload,
-    },
+    FETCH: asyncActions,
   },
 })

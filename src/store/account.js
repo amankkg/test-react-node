@@ -1,27 +1,39 @@
 import {handleActions} from 'redux-actions'
 
-import * as on from '../actions'
+import {account as on} from '../actions'
+import {statuses} from '../constants'
+import {handleStartedAction, handleFinishedAction} from './helpers'
 
 const defaultState = {
-  signedIn: false,
-  profile: null,
-  message: null,
-  status: 0, // -1 - failed, 0 - idle, 1 - fetching, 2 - ok
+  token: null,
+  tokenExpire: null,
+  refreshToken: null,
+  login: null,
+  role: 'guest', // guest | customer | admin
+  created: null,
+  status: statuses.IDLE,
+  error: null,
 }
 
 export const account = handleActions(
   {
-    [on.account.fetch.start]: () => ({
-      message: null,
-      status: 1,
-    }),
-    [on.account.fetch.ok]: (state, action) => ({
-      profile: action.payload.profile,
-      status: 2,
-    }),
-    [on.account.fetch.fail]: (state, action) => ({
-      // message: action.error
-    }),
+    [on.signIn.started]: handleStartedAction,
+    [on.signIn.finished]: handleFinishedAction,
+
+    [on.signedOut]: () => defaultState,
+
+    [on.fetch.started]: handleStartedAction,
+    [on.fetch.finished]: (state, action) => {
+      if (action.error)
+        return {...state, status: statuses.ERROR, error: action.payload.message}
+
+      const {cart, ...payload} = action.payload
+
+      return {...state, ...payload, status: statuses.OK, error: null}
+    },
+
+    [on.tokenRefresh.finished]: (state, action) =>
+      handleFinishedAction(action.error ? defaultState : state, action),
   },
   defaultState,
 )
