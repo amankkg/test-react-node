@@ -1,22 +1,21 @@
 import React, {useEffect, useMemo, useState} from 'react'
 import {useDispatch, useSelector} from 'react-redux'
+import {useHistory} from 'react-router-dom'
 
 import * as actions from '../actions'
 import {Emoji} from '../components'
-import {fetchCart, fetchProductList} from '../thunks'
-import {useHistory} from 'react-router-dom'
+import {fetchMe, fetchProductList, purchase} from '../thunks'
+import {statuses} from '../constants'
 
-// TODO: add total cost
-// TODO: add feature to update entry quantity
 export const Cart = () => {
   const history = useHistory()
   const dispatch = useDispatch()
   const state = useSelector((state) => ({
     entriesMap: state.cart.entries,
     promoCode: state.cart.promoCode,
-    productsMap: state.productList.entries,
-    cartFetchStatus: state.cart.status,
-    productsFetchStatus: state.productList.status,
+    productsMap: state.products.entries,
+    cartFetchStatus: state.account.status,
+    productsFetchStatus: state.products.status,
   }))
   const [lastQuantityValue, rememberLastQuantityValue] = useState(0)
 
@@ -25,11 +24,14 @@ export const Cart = () => {
   ])
 
   useEffect(() => {
-    if (state.cartFetchStatus === 0) dispatch(fetchCart())
-    if (state.productsFetchStatus === 0) dispatch(fetchProductList())
-  }, [dispatch, state.cartFetchStatus, state.productsFetchStatus])
+    if (state.cartFetchStatus === statuses.IDLE) dispatch(fetchMe(history))
+    if (state.productsFetchStatus === statuses.IDLE)
+      dispatch(fetchProductList())
+  }, [dispatch, history, state.cartFetchStatus, state.productsFetchStatus])
 
-  const ready = state.cartFetchStatus === 2 && state.productsFetchStatus === 2
+  const ready =
+    state.cartFetchStatus === statuses.OK &&
+    state.productsFetchStatus === statuses.OK
 
   if (!ready)
     return (
@@ -40,7 +42,7 @@ export const Cart = () => {
     )
 
   const proceedToCheckout = () => {
-    dispatch(actions.processCart(state.entriesMap))
+    dispatch(purchase())
 
     history.push('/')
   }
@@ -52,16 +54,21 @@ export const Cart = () => {
     : undefined
 
   const onRemoveEntry = (id) => {
-    if (window.confirm('Are you sure?')) dispatch(actions.deleteEntry(id))
+    if (window.confirm('Are you sure?')) dispatch(actions.cart.entryRemoved(id))
   }
 
   const onBlurRemoveEntry = (id) => {
     if (window.confirm('Do you want to remove this entry from cart?')) {
-      dispatch(actions.deleteEntry(id))
+      dispatch(actions.cart.entryRemoved(id))
     } else {
-      dispatch(actions.updateQuantity(id, lastQuantityValue))
+      dispatch(actions.cart.entryUpdated(id, lastQuantityValue))
     }
   }
+
+  const total = entries.reduce(
+    (sum, [id, quantity]) => sum + quantity * state.productsMap[id].price,
+    0,
+  )
 
   return (
     <div>
@@ -85,7 +92,7 @@ export const Cart = () => {
               const onChange = (id, value) => {
                 if (value === 0) rememberLastQuantityValue(quantity)
 
-                dispatch(actions.updateQuantity(id, value))
+                dispatch(actions.cart.entryUpdated(id, value))
               }
 
               return (
@@ -114,6 +121,9 @@ export const Cart = () => {
               )
             })}
           </ul>
+          <label htmlFor="promoCode">Promo code</label>
+          <input id="promoCode" value={state.promoCode} disabled />
+          <p>Total: ${total}</p>
           {error && <p className="error">{error}</p>}
           <button>Proceed</button>
         </form>
@@ -122,8 +132,6 @@ export const Cart = () => {
           cart is empty <Emoji label="woman shrugs" content="🤷‍♀️" />
         </p>
       )}
-      <label htmlFor="promoCode">Promo code</label>
-      <input id="promoCode" value={state.promoCode} disabled />
     </div>
   )
 }
