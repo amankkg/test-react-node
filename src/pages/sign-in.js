@@ -1,33 +1,24 @@
 import React, {useState} from 'react'
+import {useDispatch} from 'react-redux'
+import {useHistory} from 'react-router-dom'
+
+import {signIn} from '../thunks'
 
 export const SignIn = () => {
   const [login, setLogin] = useState('')
   const [password, setPassword] = useState('')
+  const dispatch = useDispatch()
+  const history = useHistory()
 
-  const onSubmit = () => {
-    fetch(process.env.REACT_APP_AUTH_API_URL + '/signin', {
-      method: 'post',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({login, password}),
-    })
-      .then((response) => {
-        if (response.ok) return response.json()
-
-        throw new Error(response.statusText)
-      })
-      .then((data) => console.log(data))
-      .catch((error) => console.error(error.message))
+  const onSubmit = (event) => {
+    event.preventDefault()
+    dispatch(signIn(login, password, history))
   }
 
   return (
     <div>
       <h1>Sign In</h1>
-      <form
-        onSubmit={(e) => {
-          e.preventDefault()
-          onSubmit()
-        }}
-      >
+      <form onSubmit={onSubmit}>
         <label htmlFor="login">Login</label>
         <input
           id="login"
@@ -45,7 +36,7 @@ export const SignIn = () => {
           required
         />
         <br />
-        <button>Submit</button>
+        <button>Sign In</button>
       </form>
     </div>
   )

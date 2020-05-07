@@ -1,22 +1,19 @@
 import React, {useState} from 'react'
+import {useDispatch} from 'react-redux'
+import {useHistory} from 'react-router-dom'
+
+import {signUp} from '../thunks'
 
 export const SignUp = () => {
+  const history = useHistory()
+  const dispatch = useDispatch()
   const [login, setLogin] = useState('')
   const [password, setPassword] = useState('')
   const [passwordConfirm, setPasswordConfirm] = useState('')
 
-  const onSubmit = () => {
-    fetch(process.env.REACT_APP_AUTH_API_URL + '/signup', {
-      method: 'post',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({login, password}),
-    })
-      .then((response) => {
-        if (response.status !== 201) throw new Error(response.statusText)
-
-        console.log('Created!')
-      })
-      .catch((error) => console.error(error.message))
+  const onSubmit = (event) => {
+    event.preventDefault()
+    dispatch(signUp(login, password, history))
   }
 
   const showErrorMessage = password !== '' && password !== passwordConfirm
@@ -24,12 +21,7 @@ export const SignUp = () => {
   return (
     <div>
       <h1>Sign Up</h1>
-      <form
-        onSubmit={(e) => {
-          e.preventDefault()
-          onSubmit()
-        }}
-      >
+      <form onSubmit={onSubmit}>
         <label htmlFor="login">Login</label>
         <input
           id="login"
@@ -59,7 +51,7 @@ export const SignUp = () => {
         {showErrorMessage && (
           <p className="error">password and confirm password should match</p>
         )}
-        <button>Submit</button>
+        <button>Sign Up</button>
       </form>
     </div>
   )
