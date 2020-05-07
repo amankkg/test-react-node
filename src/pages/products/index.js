@@ -1,24 +1,24 @@
 import React, {useState, useEffect, useMemo} from 'react'
 import {useDispatch, useSelector} from 'react-redux'
 
-import {addToCart} from '../../actions'
+import {cart as cartActions} from '../../actions'
 import {Emoji} from '../../components'
 import {fetchProductList} from '../../thunks'
+import {statuses} from '../../constants'
 
 import {AddToCart} from './add-to-cart'
 
 export const Products = () => {
-  const state = useSelector((state) => state.productList)
+  const state = useSelector((state) => state.products)
   const dispatch = useDispatch()
   const products = useMemo(() => Object.values(state.entries), [state.entries])
-  const [current, setCurrent] = useState(null)
-  const [currentAmount, setCurrentAmount] = useState(1)
+  const [currentId, setCurrent] = useState(null)
 
   useEffect(() => {
-    if (state.status === 0) dispatch(fetchProductList())
+    if (state.status === statuses.IDLE) dispatch(fetchProductList())
   }, [dispatch, state.status])
 
-  if (state.status === 1)
+  if (state.status === statuses.PENDING)
     return (
       <div>
         <h1>Products</h1>
@@ -27,9 +27,8 @@ export const Products = () => {
     )
 
   const onAdd = (amount) => {
-    dispatch(addToCart(current, amount))
+    dispatch(cartActions.entryAdded(currentId, amount))
     setCurrent(null)
-    setCurrentAmount(1)
   }
 
   return (
@@ -39,19 +38,14 @@ export const Products = () => {
         <ul>
           {products.map((p, i) => (
             <li key={p.id}>
-              <div onClick={() => setCurrent(p.id)} tabIndex={i + 1}>
-                <p>
-                  {p.title} ${p.price} qty: {p.quantity}
-                </p>
-                {current === p.id && (
-                  <AddToCart
-                    value={currentAmount}
-                    max={p.quantity}
-                    onChange={setCurrentAmount}
-                    onAdd={onAdd}
-                  />
-                )}
-              </div>
+              <p>
+                {p.title} ${p.price} qty: {p.quantity}
+              </p>
+              {currentId === p.id ? (
+                <AddToCart max={p.quantity} onAdd={onAdd} />
+              ) : (
+                <button onClick={() => setCurrent(p.id)}>Buy</button>
+              )}
             </li>
           ))}
         </ul>
