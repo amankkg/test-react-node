@@ -27,6 +27,7 @@ Live demo TODO: (admin login:password is `admin`:`123`)
 
 ```dosini
 # client
+REACT_APP_IDENTITY_STORAGE_KEY=your_production_local_storage_identity_key
 REACT_APP_MAIN_API_URL=your_main_backend_api_url
 REACT_APP_AUTH_API_URL=your_auth_backend_api_url
 

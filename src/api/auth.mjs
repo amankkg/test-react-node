@@ -27,12 +27,17 @@ function generateRefreshToken(identity) {
 
 app.post('/signup', async (req, res) => {
   try {
-    const password = await bcrypt.hash(req.body.password, 10)
-    const id = await nanoid()
     const userMap = await db.fetchUsers()
-    const user = {id, login: req.body.login, password, created: new Date()}
+    const id = await nanoid()
+    const password = await bcrypt.hash(req.body.password, 10)
 
-    userMap[id] = user
+    userMap[id] = {
+      id,
+      login: req.body.login,
+      role: 'customer',
+      password,
+      created: new Date(),
+    }
 
     await db.updateUsers(userMap)
 
