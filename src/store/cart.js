@@ -24,7 +24,7 @@ export const cart = handleActions(
       return nextState
     },
 
-    [on.cart.entryUpdated]: (state, {id, quantity}) => ({
+    [on.cart.entryUpdated]: (state, {payload: {id, quantity}}) => ({
       ...state,
       entries: {...state.entries, [id]: quantity},
     }),
