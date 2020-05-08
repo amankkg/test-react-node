@@ -4,3 +4,13 @@ export const statuses = Object.freeze({
   PENDING: 'PENDING',
   OK: 'OK',
 })
+
+export const routes = {
+  HOME: '/',
+  FORBIDDEN: '/forbidden',
+  SIGNIN: '/signin',
+  SIGNUP: '/signup',
+  PRODUCTS: '/products',
+  CART: '/cart',
+  PROFILE: '/profile',
+}

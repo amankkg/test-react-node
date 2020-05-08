@@ -5,7 +5,7 @@ const asyncActions = {
   FINISHED: undefined,
 }
 
-export const {cart, products, account} = createActions({
+export const {account, cart, products} = createActions({
   ACCOUNT: {
     FETCH: asyncActions,
     SIGN_IN: asyncActions,

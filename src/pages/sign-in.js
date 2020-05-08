@@ -1,10 +1,15 @@
 import React, {useState} from 'react'
-import {useDispatch} from 'react-redux'
+import {useDispatch, useSelector} from 'react-redux'
 import {useHistory} from 'react-router-dom'
 
+import {statuses} from '../constants'
 import {signIn} from '../thunks'
 
 export const SignIn = () => {
+  const state = useSelector((state) => ({
+    status: state.account.status,
+    error: state.account.error,
+  }))
   const [login, setLogin] = useState('')
   const [password, setPassword] = useState('')
   const dispatch = useDispatch()
@@ -36,6 +41,10 @@ export const SignIn = () => {
           required
         />
         <br />
+        {state.status === statuses.PENDING && <p>loading...</p>}
+        {state.status === statuses.ERROR && (
+          <p className="error">{state.error}</p>
+        )}
         <button>Sign In</button>
       </form>
     </div>

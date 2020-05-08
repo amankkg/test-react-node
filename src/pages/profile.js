@@ -7,9 +7,15 @@ export const Profile = () => {
   return (
     <div>
       <h1>Account</h1>
-      <p>Login: {state.login}</p>
-      <p>Registered: {state.created}</p>
-      <p>Role: {state.role}</p>
+      <p>
+        <b>Login:</b> {state.login}
+      </p>
+      <p>
+        <b>Registered:</b> {new Date(state.created).toLocaleString()}
+      </p>
+      <p>
+        <b>Role:</b> <code>{state.role}</code>
+      </p>
     </div>
   )
 }
