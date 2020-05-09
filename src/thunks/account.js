@@ -3,27 +3,22 @@ import {request, storage} from '../services'
 
 export const signIn = (login, password, history) => async (dispatch) => {
   const {started, finished} = actions.account.signIn
+  let payload
 
   dispatch(started())
 
-  const response = await fetch(process.env.REACT_APP_AUTH_API_URL + '/signin', {
-    method: 'post',
-    headers: {'Content-Type': 'application/json'},
-    body: JSON.stringify({login, password}),
-  })
+  try {
+    const options = {method: 'post', body: {login, password}}
 
-  if (!response.ok) {
-    const payload = new Error(response.statusText)
+    const data = await request.auth('/signin', options)
 
-    return dispatch(finished(payload))
-  }
-
-  const tokens = await response.json()
-
-  const payload = {
-    token: tokens.accessToken,
-    tokenExpire: tokens.expireDate,
-    refreshToken: tokens.refreshToken,
+    payload = {
+      token: data.accessToken,
+      tokenExpire: data.expireDate,
+      refreshToken: data.refreshToken,
+    }
+  } catch (error) {
+    return dispatch(finished(error))
   }
 
   await storage.write(process.env.REACT_APP_IDENTITY_STORAGE_KEY, payload)
@@ -49,48 +44,31 @@ export const signUp = (login, password, history) => async (dispatch) => {
 }
 
 export const signOut = (history) => async (dispatch, getState) => {
+  const token = getState().account.refreshToken
+
   dispatch(actions.account.signedOut())
 
-  const state = getState()
-
-  const response = await fetch(
-    process.env.REACT_APP_AUTH_API_URL + '/signout',
-    {
-      method: 'delete',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({token: state.account.refreshToken}),
-    },
-  )
-
-  if (!response.ok) console.error(new Error(response.statusText))
+  try {
+    await request.auth('/signout', {method: 'delete', body: {token}})
+  } catch (error) {
+    console.error(error)
+  }
 
   history.push('/')
 }
 
-export const fetchMe = (history) => async (dispatch, getState) => {
+export const fetchMe = () => async (dispatch, getState) => {
   const {started, finished} = actions.account.fetch
-  const state = getState()
+  const {token} = getState().account
+  let payload
 
   dispatch(started())
 
-  // TODO: create a middleware to check for token + expire date
-  const needNewToken =
-    state.account.token == null ||
-    Date.parse(state.account.tokenExpire) < Date.now()
-
-  if (needNewToken) return history.push('/signin')
-
-  const response = await fetch(process.env.REACT_APP_MAIN_API_URL + '/me', {
-    headers: {Authorization: 'Bearer ' + state.account.token},
-  })
-
-  if (!response.ok) {
-    const payload = new Error(response.statusText)
-
-    return dispatch(finished(payload))
+  try {
+    payload = await request.api('/me', {token})
+  } catch (error) {
+    payload = error
   }
 
-  const account = await response.json()
-
-  dispatch(finished(account))
+  dispatch(finished(payload))
 }

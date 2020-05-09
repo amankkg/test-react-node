@@ -1,6 +1,6 @@
 import {handleActions} from 'redux-actions'
 
-import {account as on} from '../actions'
+import * as on from '../actions'
 import {statuses} from '../constants'
 import {handleStartedAction, handleFinishedAction} from './helpers'
 
@@ -17,13 +17,21 @@ const defaultState = {
 
 export const account = handleActions(
   {
-    [on.signIn.started]: handleStartedAction,
-    [on.signIn.finished]: handleFinishedAction,
+    [on.account.signIn.started]: handleStartedAction,
+    [on.account.signIn.finished]: handleFinishedAction,
 
-    [on.signedOut]: () => defaultState,
+    [on.account.signUp.started]: handleStartedAction,
+    [on.account.signUp.finished]: ({...state}, action) => {
+      state.status = action.error ? statuses.ERROR : statuses.IDLE
+      state.error = action.error ? action.payload.message : null
 
-    [on.fetch.started]: handleStartedAction,
-    [on.fetch.finished]: (state, action) => {
+      return state
+    },
+
+    [on.account.signedOut]: () => defaultState,
+
+    [on.account.fetch.started]: handleStartedAction,
+    [on.account.fetch.finished]: (state, action) => {
       if (action.error)
         return {...state, status: statuses.ERROR, error: action.payload.message}
 
@@ -32,7 +40,7 @@ export const account = handleActions(
       return {...state, ...payload, status: statuses.OK, error: null}
     },
 
-    [on.tokenRefresh.finished]: (state, action) =>
+    [on.account.tokenRefresh.finished]: (state, action) =>
       handleFinishedAction(action.error ? defaultState : state, action),
   },
   defaultState,

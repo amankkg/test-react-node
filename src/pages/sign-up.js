@@ -1,12 +1,14 @@
 import React, {useState} from 'react'
-import {useDispatch} from 'react-redux'
+import {useDispatch, useSelector} from 'react-redux'
 import {useHistory} from 'react-router-dom'
 
+import {statuses} from '../constants'
 import {signUp} from '../thunks'
 
 export const SignUp = () => {
   const history = useHistory()
   const dispatch = useDispatch()
+  const {status, error} = useSelector((state) => state.account)
   const [login, setLogin] = useState('')
   const [password, setPassword] = useState('')
   const [passwordConfirm, setPasswordConfirm] = useState('')
@@ -16,7 +18,7 @@ export const SignUp = () => {
     dispatch(signUp(login, password, history))
   }
 
-  const showErrorMessage = password !== '' && password !== passwordConfirm
+  const passwordMismatch = password !== '' && password !== passwordConfirm
 
   return (
     <div>
@@ -48,9 +50,11 @@ export const SignUp = () => {
           required
         />
         <br />
-        {showErrorMessage && (
+        {passwordMismatch && (
           <p className="error">password and confirm password should match</p>
         )}
+        {status === statuses.PENDING && <p>loading...</p>}
+        {status === statuses.ERROR && <p className="error">{error}</p>}
         <button>Sign Up</button>
       </form>
     </div>
