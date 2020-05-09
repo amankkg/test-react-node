@@ -1,18 +1,17 @@
 import * as actions from '../actions'
-import {timeout} from './helpers'
+import {request} from '../services'
 
-export const fetchProductList = () => async (dispatch) => {
-  dispatch(actions.products.fetch.started())
-  // const response = await fetch('/api/products')
-  // const items = await response.json()
+export const fetchProducts = () => async (dispatch) => {
+  const {started, finished} = actions.products.fetch
+  let payload = {}
 
-  // TODO: use real data
-  const entries = {
-    1: {id: '1', title: 'Cake', price: 42, quantity: 5},
-    2: {id: '2', title: 'Ice Cream', price: 17, quantity: 8},
+  dispatch(started())
+
+  try {
+    payload.entries = await request.api('/products')
+  } catch (error) {
+    payload = error
   }
 
-  await timeout(1000)
-
-  dispatch(actions.products.fetch.finished({entries}))
+  dispatch(finished(payload))
 }

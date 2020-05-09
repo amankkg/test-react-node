@@ -1,15 +1,16 @@
 class FetchError extends Error {
-  constructor(response) {
-    super('Fetch error. ' + response.statusText)
+  constructor(response, payload) {
+    super(payload?.message ?? response.statusText)
 
     this.statusCode = response.status
     this.wasRedirected = response.redirected
     this.responseType = response.type
     this.url = response.url
+    this.data = payload?.data
   }
 }
 
-export async function request(url, {method, body, token, search}) {
+export async function request(url, {method, body, token, search} = {}) {
   const options = {headers: new Headers()}
 
   if (method) {
@@ -31,24 +32,19 @@ export async function request(url, {method, body, token, search}) {
 
   const response = await fetch(url, options)
 
-  if (!response.ok) throw new FetchError(response)
+  let payload
 
-  if (response.headers.get('Content-Type') === 'application/json')
-    return await response.json()
+  if (response.headers.get('Content-Type')?.startsWith('application/json')) {
+    payload = await response.json()
+  }
+
+  if (!response.ok) throw new FetchError(response, payload)
+
+  return payload
 }
 
-request.auth = (authEndpoint, {method, body, token, search}) =>
-  request(process.env.REACT_APP_AUTH_API_URL + authEndpoint, {
-    method,
-    body,
-    token,
-    search,
-  })
+request.auth = (authEndpoint, ...rest) =>
+  request(process.env.REACT_APP_AUTH_API_URL + authEndpoint, ...rest)
 
-request.api = (mainEndpoint, {method, body, token, search}) =>
-  request(process.env.REACT_APP_MAIN_API_URL + mainEndpoint, {
-    method,
-    body,
-    token,
-    search,
-  })
+request.api = (mainEndpoint, ...rest) =>
+  request(process.env.REACT_APP_MAIN_API_URL + mainEndpoint, ...rest)

@@ -24,10 +24,8 @@ export const products = handleActions(
         if (id in entries) {
           const {quantity, ...entry} = entries[id]
 
-          entry.quantity = quantity - value
-
-          if (entry.quantity <= 0) delete entries[id]
-          else entries[id] = entry
+          entry.quantity -= value
+          entries[id] = entry
         }
       }
 

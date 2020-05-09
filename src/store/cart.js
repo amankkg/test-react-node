@@ -12,29 +12,25 @@ const defaultState = {
 
 export const cart = handleActions(
   {
-    [on.cart.entryAdded]: (state, {payload: {id, quantity}}) => {
-      const nextState = {
-        ...state,
-        entries: {
-          ...state.entries,
-          [id]: quantity + (state.entries[id] ?? 0),
-        },
-      }
+    [on.cart.entryAdded]: ({...state}, {payload: {id, quantity}}) => {
+      state.entries = {...state.entries}
+      state.entries[id] = quantity + (state.entries[id] ?? 0)
 
-      return nextState
+      return state
     },
 
-    [on.cart.entryUpdated]: (state, {payload: {id, quantity}}) => ({
-      ...state,
-      entries: {...state.entries, [id]: quantity},
-    }),
+    [on.cart.entryUpdated]: ({...state}, {payload: {id, quantity}}) => {
+      state.entries = {...state.entries, [id]: quantity}
 
-    [on.cart.entryRemoved]: (state, {payload: {id}}) => {
-      const entries = {...state.entries}
+      return state
+    },
 
-      delete entries[id]
+    [on.cart.entryRemoved]: ({...state}, {payload: {id}}) => {
+      state.entries = {...state.entries}
 
-      return {...state, entries}
+      delete state.entries[id]
+
+      return state
     },
 
     [on.cart.promoUpdated]: (state, {payload: {value}}) => ({

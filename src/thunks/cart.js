@@ -1,12 +1,23 @@
-import {cart} from '../actions'
-import {timeout} from './helpers'
+import * as actions from '../actions'
+import {request} from '../services'
 
 export const purchase = () => async (dispatch, getState) => {
-  dispatch(cart.purchase.started())
+  const {started, finished} = actions.cart.purchase
+  const {
+    cart: {entries, promoCode},
+    account: {token},
+  } = getState()
+  let payload = {entries}
 
-  await timeout(2000)
+  dispatch(started())
 
-  const state = getState()
+  try {
+    const options = {method: 'post', body: {entries, promoCode}, token}
 
-  dispatch(cart.purchase.finished(state.cart))
+    await request.api('/purchase', options)
+  } catch (error) {
+    payload = error
+  }
+
+  dispatch(finished(payload))
 }

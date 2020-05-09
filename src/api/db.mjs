@@ -29,7 +29,7 @@ async function initDb() {
 
 export async function fetchDb() {
   let content
-  
+
   try {
     content = await fs.readFile(dbFilePath)
   } catch (error) {
@@ -37,7 +37,7 @@ export async function fetchDb() {
 
     content = await fs.readFile(dbFilePath)
   }
-  
+
   const data = JSON.parse(content)
 
   return data
@@ -47,20 +47,6 @@ export async function updateDb(data) {
   const content = JSON.stringify(data)
 
   await fs.writeFile(dbFilePath, content)
-}
-
-export async function fetchUsers() {
-  const db = await fetchDb()
-
-  return db.users
-}
-
-export async function updateUsers(userMap) {
-  const db = await fetchDb()
-
-  db.users = userMap
-
-  await updateDb(db)
 }
 
 export async function checkRefreshToken(token) {
@@ -81,6 +67,34 @@ export async function removeRefreshToken(token) {
   const db = await fetchDb()
 
   db.refreshTokens = db.refreshTokens.filter((t) => t !== token)
+
+  await updateDb(db)
+}
+
+export async function fetchUsers() {
+  const db = await fetchDb()
+
+  return db.users
+}
+
+export async function updateUsers(userMap) {
+  const db = await fetchDb()
+
+  db.users = userMap
+
+  await updateDb(db)
+}
+
+export async function fetchProducts() {
+  const db = await fetchDb()
+
+  return db.products
+}
+
+export async function updateProducts(productMap) {
+  const db = await fetchDb()
+
+  db.products = productMap
 
   await updateDb(db)
 }

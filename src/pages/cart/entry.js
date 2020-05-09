@@ -1,7 +1,7 @@
 import React, {useState} from 'react'
 import {useDispatch, useSelector} from 'react-redux'
 
-import {cart as actions} from '../../actions'
+import * as actions from '../../actions'
 
 export const Entry = ({id, value}) => {
   const [previousValue, setPreviousValue] = useState(0)
@@ -16,21 +16,21 @@ export const Entry = ({id, value}) => {
 
     if (nextValue === 0) setPreviousValue(value)
 
-    dispatch(actions.entryUpdated(id, nextValue))
+    dispatch(actions.cart.entryUpdated(id, nextValue))
   }
 
   const onBlur = () => {
     if (value > 0) return
 
     if (window.confirm('Do you want to remove this entry from cart?')) {
-      dispatch(actions.entryRemoved(id))
+      dispatch(actions.cart.entryRemoved(id))
     } else {
-      dispatch(actions.entryUpdated(id, previousValue))
+      dispatch(actions.cart.entryUpdated(id, previousValue))
     }
   }
 
   const onRemove = () => {
-    if (window.confirm('Are you sure?')) dispatch(actions.entryRemoved(id))
+    if (window.confirm('Are you sure?')) dispatch(actions.cart.entryRemoved(id))
   }
 
   const htmlId = `entry-${id}`

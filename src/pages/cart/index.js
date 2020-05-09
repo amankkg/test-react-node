@@ -3,7 +3,7 @@ import {useDispatch, useSelector} from 'react-redux'
 import {useHistory} from 'react-router-dom'
 
 import {Emoji} from '../../components'
-import {fetchMe, fetchProductList, purchase} from '../../thunks'
+import {fetchMe, fetchProducts, purchase} from '../../thunks'
 import {statuses} from '../../constants'
 import {Entry} from './entry'
 
@@ -24,7 +24,7 @@ export const Cart = () => {
 
   useEffect(() => {
     if (state.cartStatus === statuses.IDLE) dispatch(fetchMe(history))
-    if (state.productsStatus === statuses.IDLE) dispatch(fetchProductList())
+    if (state.productsStatus === statuses.IDLE) dispatch(fetchProducts())
   }, [dispatch, history, state.cartStatus, state.productsStatus])
 
   const ready =

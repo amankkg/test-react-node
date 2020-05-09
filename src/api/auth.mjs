@@ -11,6 +11,10 @@ dotenv.config()
 
 const app = express()
 
+app.use((req, res, next) => {
+  setTimeout(next, 1000)
+})
+
 app.use(express.json())
 
 function generateAccessToken(identity) {
@@ -41,9 +45,9 @@ app.post('/signup', async (req, res) => {
 
     await db.updateUsers(userMap)
 
-    res.status(201).send()
+    res.sendStatus(201)
   } catch {
-    res.status(500).send()
+    res.sendStatus(500)
   }
 })
 
@@ -51,7 +55,7 @@ app.post('/signin', async (req, res) => {
   const userMap = await db.fetchUsers()
   const user = Object.values(userMap).find((u) => u.login === req.body.login)
 
-  if (user == null) return res.status(400).send()
+  if (user == null) return res.sendStatus(400)
 
   try {
     const passwordsMatch = await bcrypt.compare(
@@ -69,10 +73,10 @@ app.post('/signin', async (req, res) => {
 
       res.status(200).send(payload)
     } else {
-      res.status(400).send()
+      res.sendStatus(400)
     }
   } catch {
-    res.status(500).send()
+    res.sendStatus(500)
   }
 })
 
@@ -99,7 +103,7 @@ app.post('/token', async (req, res) => {
 app.delete('/signout', async (req, res) => {
   await db.removeRefreshToken(req.body.token)
 
-  return res.sendStatus(204)
+  res.sendStatus(204)
 })
 
 const port = process.env.AUTH_API_PORT
