@@ -8,9 +8,8 @@ const links = [
   [routes.PRODUCTS, 'Products'],
   [routes.CART, 'Cart'],
   [routes.PROFILE, 'Profile'],
-  [routes.SIGNIN, 'Sign In'],
-  [routes.SIGNIN_GITHUB, 'Sign In with GitHub'],
-  [routes.SIGNUP, 'Sign Up'],
+  [routes.SIGN_IN, 'Sign In'],
+  [routes.SIGN_UP, 'Sign Up'],
 ]
 
 export const Header = () => {
@@ -30,7 +29,8 @@ export const Header = () => {
     [role],
   )
 
-  const homeActiveClass = location.pathname === '/' ? 'active-link' : undefined
+  const homeActiveClass =
+    location.pathname === routes.HOME ? 'active-link' : undefined
 
   return (
     <header>

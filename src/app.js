@@ -1,22 +1,17 @@
 import React, {useMemo} from 'react'
-import {Switch, Redirect} from 'react-router-dom'
+import {Route, Switch, Redirect, useLocation} from 'react-router-dom'
 import {useSelector} from 'react-redux'
 
-import {Header, Route} from './components'
+import {Header} from './components'
 import {routes, permissions} from './constants'
-import {useRestoreSession, useRouteCheck} from './hooks'
+import {useRestoreSession} from './hooks'
 import * as pages from './pages'
 
-const defaultRoutes = {
-  admin: routes.FORBIDDEN,
-  guest: routes.SIGNIN,
-  customer: routes.FORBIDDEN,
-}
-
 const routeList = [
-  [routes.SIGNIN_GITHUB, pages.SignInWithGithub],
-  [routes.SIGNIN, pages.SignIn],
-  [routes.SIGNUP, pages.SignUp],
+  [routes.HOME, pages.Home, true],
+  [routes.SIGN_IN, pages.SignIn, true],
+  [routes.SIGN_IN, pages.SignIn, false, 'authServer'],
+  [routes.SIGN_UP, pages.SignUp],
   [routes.PRODUCTS, pages.Products],
   [routes.CART, pages.Cart],
   [routes.PROFILE, pages.Profile],
@@ -25,15 +20,21 @@ const routeList = [
 
 export const App = () => {
   const role = useSelector((state) => state.account.role)
+  const location = useLocation()
+  const restored = useRestoreSession()
+
   const openRoutes = useMemo(
     () => routeList.filter(([route]) => permissions[role].includes(route)),
     [role],
   )
-  const restored = useRestoreSession()
-  const routeAllowed = useRouteCheck(openRoutes)
 
   if (!restored) return <p>restoring session...</p>
-  if (!routeAllowed) return <Redirect to={defaultRoutes[role]} />
+
+  const allowed = openRoutes.some(([path, _, exact = false]) =>
+    exact ? location.pathname === path : location.pathname.startsWith(path),
+  )
+
+  if (!allowed) return <Redirect to={routes.FORBIDDEN} />
 
   return (
     <>
@@ -41,10 +42,20 @@ export const App = () => {
       <br />
       <main>
         <Switch>
-          <Route exact path={routes.HOME} component={pages.Home} />
-          {openRoutes.map(([path, component]) => (
-            <Route key={path} path={path} component={component} />
-          ))}
+          {openRoutes.map(
+            ([path, component, exact = false, ...routeParams]) => {
+              for (const param of routeParams) path += '/:' + param
+
+              return (
+                <Route
+                  key={path}
+                  path={path}
+                  exact={exact}
+                  component={component}
+                />
+              )
+            },
+          )}
           <Route path="*" component={pages.NotFound} />
         </Switch>
       </main>

@@ -26,21 +26,32 @@ Live demo TODO: (admin login:password is `admin`:`123`)
 ## Environment Variables
 
 ```dosini
+# any of `react-scripts` varibales, e.g. `BROWSER=none`
 # client
-REACT_APP_IDENTITY_STORAGE_KEY=your_production_local_storage_identity_key
-REACT_APP_MAIN_API_URL=your_main_backend_api_url
-REACT_APP_AUTH_API_URL=your_auth_backend_api_url
+REACT_APP_IDENTITY_STORAGE_KEY=string
+REACT_APP_MAIN_API_URL=string_url
+REACT_APP_AUTH_API_URL=string_url
 
 # client proxy for development
-REACT_APP_MAIN_API_PROXY_TARGET=your_main_api_target_for_proxy
-REACT_APP_AUTH_API_PROXY_TARGET=your_auth_api_target_for_proxy
+REACT_APP_MAIN_API_PROXY_TARGET=string_url
+REACT_APP_AUTH_API_PROXY_TARGET=string_url
+
+# GitHub ouath config
+REACT_APP_GITHUB_REDIRECT_URI=string
+REACT_APP_GITHUB_CLIENT_ID=string
+GITHUB_CLIENT_SECRET=string
+
+# Google ouath config
+REACT_APP_GOOGLE_REDIRECT_URI=string
+REACT_APP_GOOGLE_CLIENT_ID=string
+GOOGLE_CLIENT_SECRET=string
 
 # server
-MAIN_API_PORT=your_main_backend_api_port
-AUTH_API_PORT=your_auth_backend_api_port
-ACCESS_TOKEN=your_api_access_token
-REFRESH_TOKEN=your_auth_api_refresh_token
-TOKEN_TTL=token_time_to_live_in_seconds
+MAIN_API_PORT=number
+AUTH_API_PORT=number
+ACCESS_TOKEN=string
+REFRESH_TOKEN=string
+TOKEN_TTL=number_in_seconds
 ```
 
 ## Project Structure
