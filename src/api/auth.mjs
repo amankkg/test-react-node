@@ -66,7 +66,7 @@ app.post('/signin', async (req, res) => {
     )
 
     if (passwordsMatch) {
-      const identity = {userId: user.id}
+      const identity = {userId: user.id, userRole: user.role}
       const [accessToken, expireDate] = generateAccessToken(identity)
       const refreshToken = generateRefreshToken(identity)
       const payload = {accessToken, expireDate, refreshToken}
@@ -83,7 +83,10 @@ app.post('/signin', async (req, res) => {
 })
 
 app.post('/signin/github', async (req, res) => {
+  let tokens
+
   try {
+    const headers = {Accept: 'application/json'}
     const body = new FormData()
 
     body.append('client_secret', process.env.GITHUB_CLIENT_SECRET)
@@ -91,31 +94,65 @@ app.post('/signin/github', async (req, res) => {
     body.append('code', req.body.code)
     body.append('redirect_uri', req.body.redirectUri)
 
-    const authResponse = await fetch(
-      `https://github.com/login/oauth/access_token`,
-      {method: 'post', body},
+    const response = await fetch(
+      'https://github.com/login/oauth/access_token',
+      {method: 'post', body, headers},
     )
 
-    const paramsString = await authResponse.text()
+    if (!response.ok) throw new Error(response.statusText)
 
-    const params = new URLSearchParams(paramsString)
-    const token = params.get('access_token')
-    const scope = params.get('scope')
-    const tokenType = params.get('token_type')
+    tokens = await response.json()
+  } catch (error) {
+    return res.status(400).json(error.message)
+  }
 
-    // const userResponse = await fetch(
-    //   `https://api.github.com/user?scope=${scope}&token_type=${tokenType}`,
-    //   {headers: {Authorization: 'token ' + token}},
-    // )
+  const {access_token: token, token_type: tokenType, scope} = tokens
 
-    // const user = await userResponse.json()
+  let githubUser
 
-    // const payload = {user, tokens: {token, tokenType, scope}}
+  try {
+    const response = await fetch(
+      `https://api.github.com/user?scope=${scope}&token_type=${tokenType}`,
+      {headers: {Authorization: 'token ' + token}},
+    )
 
-    return res.status(200).json({token, tokenType, scope})
+    if (!response.ok) throw new Error(response.statusText)
+
+    githubUser = await response.json()
   } catch (error) {
     return res.status(400).json(error)
   }
+
+  try {
+    const users = await db.fetchUsers()
+
+    const user = users['github:' + githubUser.id] ?? {
+      id: 'github:' + githubUser.id,
+      cart: {},
+      created: new Date(),
+      role: 'customer',
+    }
+
+    users[user.id] = user
+    user.login = 'github:' + githubUser.login
+
+    await db.updateUsers(users)
+
+    const identity = {userId: user.id, userRole: user.role}
+    const [accessToken, expireDate] = generateAccessToken(identity)
+    const refreshToken = generateRefreshToken(identity)
+    const payload = {accessToken, expireDate, refreshToken}
+
+    await db.appendRefreshToken(refreshToken)
+
+    return res.status(200).send(payload)
+  } catch {
+    return res.sendStatus(400)
+  }
+})
+
+app.post('/signin/google', async (req, res) => {
+  // TODO:
 })
 
 app.post('/token', async (req, res) => {
@@ -130,7 +167,7 @@ app.post('/token', async (req, res) => {
   jwt.verify(refreshToken, process.env.REFRESH_TOKEN, (error, identity) => {
     if (error) return res.sendStatus(403)
 
-    const newIdentity = {userId: identity.userId}
+    const newIdentity = {userId: identity.userId, userRole: identity.userRole}
     const [accessToken, expireDate] = generateAccessToken(newIdentity)
     const payload = {accessToken, expireDate}
 

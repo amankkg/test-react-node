@@ -16,6 +16,20 @@ export const Profile = () => {
       <p>
         <b>Role:</b> <code>{state.role}</code>
       </p>
+      {state.login.startsWith('github:') && (
+        <p>
+          <a
+            href={
+              'https://github.com/settings/connections/applications/' +
+              process.env.REACT_APP_GITHUB_CLIENT_ID
+            }
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Review permissions
+          </a>
+        </p>
+      )}
     </div>
   )
 }
