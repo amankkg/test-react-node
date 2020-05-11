@@ -25,7 +25,7 @@ export function useRestoreSession() {
         dispatch(actions.account.signIn.finished(tokens))
         dispatch(fetchMe())
 
-        if (location.pathname.startsWith(routes.SIGNIN)) history.push('/')
+        if (location.pathname === routes.SIGNIN) history.push('/')
       }
 
       setTimeout(setRestored, 250, true)

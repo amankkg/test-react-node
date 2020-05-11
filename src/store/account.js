@@ -11,6 +11,7 @@ const defaultState = {
   login: null,
   role: 'guest', // guest | customer | admin
   created: null,
+  githubAccount: null,
   status: statuses.IDLE,
   error: null,
 }
@@ -19,6 +20,9 @@ export const account = handleActions(
   {
     [on.account.signIn.started]: handleStartedAction,
     [on.account.signIn.finished]: handleFinishedAction,
+
+    [on.account.signInGithub.started]: handleStartedAction,
+    [on.account.signInGithub.finished]: handleFinishedAction,
 
     [on.account.signUp.started]: handleStartedAction,
     [on.account.signUp.finished]: ({...state}, action) => {

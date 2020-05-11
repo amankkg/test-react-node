@@ -9,6 +9,7 @@ export const {account, cart, products} = createActions({
   ACCOUNT: {
     FETCH: asyncActions,
     SIGN_IN: asyncActions,
+    SIGN_IN_GITHUB: asyncActions,
     SIGN_UP: asyncActions,
     SIGNED_OUT: undefined,
     TOKEN_REFRESH: asyncActions,

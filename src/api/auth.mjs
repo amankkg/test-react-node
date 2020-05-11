@@ -3,6 +3,8 @@ import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
 import {nanoid} from 'nanoid/async'
 import dayjs from 'dayjs'
+import FormData from 'form-data'
+import fetch from 'node-fetch'
 import dotenv from 'dotenv'
 
 import * as db from './db.mjs'
@@ -77,6 +79,42 @@ app.post('/signin', async (req, res) => {
     }
   } catch {
     res.sendStatus(500)
+  }
+})
+
+app.post('/signin/github', async (req, res) => {
+  try {
+    const body = new FormData()
+
+    body.append('client_secret', process.env.GITHUB_CLIENT_SECRET)
+    body.append('client_id', req.body.clientId)
+    body.append('code', req.body.code)
+    body.append('redirect_uri', req.body.redirectUri)
+
+    const authResponse = await fetch(
+      `https://github.com/login/oauth/access_token`,
+      {method: 'post', body},
+    )
+
+    const paramsString = await authResponse.text()
+
+    const params = new URLSearchParams(paramsString)
+    const token = params.get('access_token')
+    const scope = params.get('scope')
+    const tokenType = params.get('token_type')
+
+    // const userResponse = await fetch(
+    //   `https://api.github.com/user?scope=${scope}&token_type=${tokenType}`,
+    //   {headers: {Authorization: 'token ' + token}},
+    // )
+
+    // const user = await userResponse.json()
+
+    // const payload = {user, tokens: {token, tokenType, scope}}
+
+    return res.status(200).json({token, tokenType, scope})
+  } catch (error) {
+    return res.status(400).json(error)
   }
 })
 

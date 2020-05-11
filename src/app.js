@@ -14,6 +14,7 @@ const defaultRoutes = {
 }
 
 const routeList = [
+  [routes.SIGNIN_GITHUB, pages.SignInWithGithub],
   [routes.SIGNIN, pages.SignIn],
   [routes.SIGNUP, pages.SignUp],
   [routes.PRODUCTS, pages.Products],

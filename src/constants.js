@@ -9,6 +9,7 @@ export const routes = Object.freeze({
   HOME: '/',
   SIGNIN: '/signin',
   SIGNUP: '/signup',
+  SIGNIN_GITHUB: '/signin/github',
   PRODUCTS: '/products',
   CART: '/cart',
   PROFILE: '/profile',
@@ -24,6 +25,7 @@ export const permissions = Object.freeze({
     routes.FORBIDDEN,
     routes.PRODUCTS,
     routes.SIGNIN,
+    routes.SIGNIN_GITHUB,
     routes.SIGNUP,
   ]),
   customer: Object.freeze([

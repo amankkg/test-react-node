@@ -9,6 +9,7 @@ const links = [
   [routes.CART, 'Cart'],
   [routes.PROFILE, 'Profile'],
   [routes.SIGNIN, 'Sign In'],
+  [routes.SIGNIN_GITHUB, 'Sign In with GitHub'],
   [routes.SIGNUP, 'Sign Up'],
 ]
 
