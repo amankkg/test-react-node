@@ -28,7 +28,7 @@ Live demo TODO: (admin login:password is `admin`:`123`)
 ```dosini
 # any of `react-scripts` varibales, e.g. `BROWSER=none`
 # client
-REACT_APP_IDENTITY_STORAGE_KEY=string
+REACT_APP_STORAGE_KEY=string
 REACT_APP_MAIN_API_URL=string_url
 REACT_APP_AUTH_API_URL=string_url
 

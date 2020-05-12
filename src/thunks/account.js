@@ -1,4 +1,5 @@
 import * as actions from '../actions'
+import {routes} from '../constants'
 import {request, storage} from '../services'
 
 export const signIn = (login, password, history) => async (dispatch) => {
@@ -21,11 +22,11 @@ export const signIn = (login, password, history) => async (dispatch) => {
     return dispatch(finished(error))
   }
 
-  await storage.write(process.env.REACT_APP_IDENTITY_STORAGE_KEY, payload)
+  await storage.write(process.env.REACT_APP_STORAGE_KEY, payload)
 
   dispatch(finished(payload))
   dispatch(fetchMe())
-  history.push('/')
+  history.push(routes.HOME)
 }
 
 export const signUp = (login, password, history) => async (dispatch) => {
@@ -40,7 +41,7 @@ export const signUp = (login, password, history) => async (dispatch) => {
   }
 
   dispatch(finished())
-  history.push('/signin')
+  history.push(routes.SIGN_IN)
 }
 
 export const signOut = (history) => async (dispatch, getState) => {
@@ -54,7 +55,7 @@ export const signOut = (history) => async (dispatch, getState) => {
     console.error(error)
   }
 
-  history.push('/')
+  history.push(routes.HOME)
 }
 
 export const fetchMe = () => async (dispatch, getState) => {

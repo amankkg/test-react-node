@@ -17,15 +17,13 @@ export function useRestoreSession() {
     if (restored) return
 
     async function restore() {
-      const tokens = await storage.read(
-        process.env.REACT_APP_IDENTITY_STORAGE_KEY,
-      )
+      const tokens = await storage.read(process.env.REACT_APP_STORAGE_KEY)
 
       if (tokens && Date.parse(tokens.tokenExpire) > Date.now()) {
         dispatch(actions.account.signIn.finished(tokens))
         dispatch(fetchMe())
 
-        if (location.pathname === routes.SIGN_IN) history.push('/')
+        if (location.pathname === routes.SIGN_IN) history.push(routes.HOME)
       }
 
       setTimeout(setRestored, 250, true)

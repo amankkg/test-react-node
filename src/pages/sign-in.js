@@ -1,18 +1,16 @@
-import React, {useState, useEffect} from 'react'
+import React, {useState, useEffect, useRef} from 'react'
 import {useDispatch, useSelector} from 'react-redux'
 import {useHistory, useLocation, useParams} from 'react-router-dom'
 
+import * as actions from '../actions'
 import {statuses} from '../constants'
 import {signIn, githubSignIn, googleSignIn} from '../thunks'
 
 const githubLink = `https://github.com/login/oauth/authorize?scope=user&client_id=${process.env.REACT_APP_GITHUB_CLIENT_ID}&redirect_uri=${process.env.REACT_APP_GITHUB_REDIRECT_URI}`
-const googleLink = ``
 
 export const SignIn = () => {
-  const state = useSelector((state) => ({
-    status: state.account.status,
-    error: state.account.error,
-  }))
+  const state = useSelector((state) => state.account)
+  const googleAuth = useRef(null)
   const [login, setLogin] = useState('')
   const [password, setPassword] = useState('')
   const dispatch = useDispatch()
@@ -23,8 +21,8 @@ export const SignIn = () => {
   const searchParams = new URLSearchParams(location.search)
   const githubCode =
     params.authServer === 'github' ? searchParams.get('code') : null
-  const googleCode =
-    params.authServer === 'google' ? searchParams.get('code') : null
+
+  const viaGoogle = () => dispatch(googleSignIn(googleAuth.current, history))
 
   useEffect(() => {
     if (githubCode) {
@@ -34,17 +32,18 @@ export const SignIn = () => {
         window.location.origin + location.pathname,
       )
       dispatch(githubSignIn(githubCode, history))
+    } else {
+      try {
+        window.gapi.load('auth2', () => {
+          googleAuth.current = window.gapi.auth2.init({
+            client_id: process.env.REACT_APP_GOOGLE_CLIENT_ID,
+          })
+        })
+      } catch (error) {
+        dispatch(actions.account.signInGoogle.finished(error))
+      }
     }
-
-    if (googleCode) {
-      window.history.pushState(
-        {},
-        null,
-        window.location.origin + location.pathname,
-      )
-      dispatch(googleSignIn(googleCode, history))
-    }
-  }, [githubCode, googleCode, location.pathname, history, dispatch])
+  }, [githubCode, location.pathname, history, dispatch])
 
   const onSubmit = (event) => {
     event.preventDefault()
@@ -58,9 +57,9 @@ export const SignIn = () => {
         <span>via GitHub</span>
       </a>
       <br />
-      <a href={googleLink}>
-        <span>via Google</span>
-      </a>
+      <button id="googleSignInButton" onClick={viaGoogle}>
+        via Google
+      </button>
       <p>or</p>
       <form onSubmit={onSubmit}>
         <label htmlFor="login">Login</label>

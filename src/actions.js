@@ -10,6 +10,7 @@ export const {account, cart, products} = createActions({
     FETCH: asyncActions,
     SIGN_IN: asyncActions,
     SIGN_IN_GITHUB: asyncActions,
+    SIGN_IN_GOOGLE: asyncActions,
     SIGN_UP: asyncActions,
     SIGNED_OUT: undefined,
     TOKEN_REFRESH: asyncActions,

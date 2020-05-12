@@ -3,6 +3,7 @@ import {useDispatch, useSelector} from 'react-redux'
 import {useHistory} from 'react-router-dom'
 
 import {Emoji} from '../../components'
+import {routes} from '../../constants'
 import {fetchMe, fetchProducts, purchase} from '../../thunks'
 import {statuses} from '../../constants'
 import {Entry} from './entry'
@@ -41,7 +42,7 @@ export const Cart = () => {
   const onSubmit = (event) => {
     event.preventDefault()
     dispatch(purchase())
-    history.push('/')
+    history.push(routes.HOME)
   }
 
   const error = entries.some(

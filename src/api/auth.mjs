@@ -6,6 +6,7 @@ import dayjs from 'dayjs'
 import FormData from 'form-data'
 import fetch from 'node-fetch'
 import dotenv from 'dotenv'
+import googleAuth from 'google-auth-library'
 
 import * as db from './db.mjs'
 
@@ -152,7 +153,46 @@ app.post('/signin/github', async (req, res) => {
 })
 
 app.post('/signin/google', async (req, res) => {
-  // TODO:
+  const client = new googleAuth.OAuth2Client(req.body.clientId)
+  let googleUser
+
+  try {
+    const ticket = await client.verifyIdToken({
+      idToken: req.body.idToken,
+      audience: req.body.clientId,
+    })
+
+    googleUser = ticket.getPayload()
+  } catch (error) {
+    return res.status(400).json(error)
+  }
+
+  try {
+    const users = await db.fetchUsers()
+
+    const user = users['google:' + googleUser.sub] ?? {
+      id: 'google:' + googleUser.sub,
+      cart: {},
+      created: new Date(),
+      role: 'customer',
+    }
+
+    users[user.id] = user
+    user.login = 'google:' + googleUser.email
+
+    await db.updateUsers(users)
+
+    const identity = {userId: user.id, userRole: user.role}
+    const [accessToken, expireDate] = generateAccessToken(identity)
+    const refreshToken = generateRefreshToken(identity)
+    const payload = {accessToken, expireDate, refreshToken}
+
+    await db.appendRefreshToken(refreshToken)
+
+    return res.status(200).send(payload)
+  } catch {
+    return res.sendStatus(400)
+  }
 })
 
 app.post('/token', async (req, res) => {
