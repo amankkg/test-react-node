@@ -26,20 +26,32 @@ Live demo TODO: (admin login:password is `admin`:`123`)
 ## Environment Variables
 
 ```dosini
+# any of `react-scripts` varibales, e.g. `BROWSER=none`
 # client
-REACT_APP_MAIN_API_URL=your_main_backend_api_url
-REACT_APP_AUTH_API_URL=your_auth_backend_api_url
+REACT_APP_STORAGE_KEY=string
+REACT_APP_MAIN_API_URL=string_url
+REACT_APP_AUTH_API_URL=string_url
 
 # client proxy for development
-REACT_APP_MAIN_API_PROXY_TARGET=your_main_api_target_for_proxy
-REACT_APP_AUTH_API_PROXY_TARGET=your_auth_api_target_for_proxy
+REACT_APP_MAIN_API_PROXY_TARGET=string_url
+REACT_APP_AUTH_API_PROXY_TARGET=string_url
+
+# GitHub ouath config
+REACT_APP_GITHUB_REDIRECT_URI=string
+REACT_APP_GITHUB_CLIENT_ID=string
+GITHUB_CLIENT_SECRET=string
+
+# Google ouath config
+REACT_APP_GOOGLE_REDIRECT_URI=string
+REACT_APP_GOOGLE_CLIENT_ID=string
+GOOGLE_CLIENT_SECRET=string
 
 # server
-MAIN_API_PORT=your_main_backend_api_port
-AUTH_API_PORT=your_auth_backend_api_port
-ACCESS_TOKEN=your_api_access_token
-REFRESH_TOKEN=your_auth_api_refresh_token
-TOKEN_TTL=token_time_to_live_in_seconds
+MAIN_API_PORT=number
+AUTH_API_PORT=number
+ACCESS_TOKEN=string
+REFRESH_TOKEN=string
+TOKEN_TTL=number_in_seconds
 ```
 
 ## Project Structure
@@ -52,6 +64,7 @@ TOKEN_TTL=token_time_to_live_in_seconds
 - `./src/setupTests.js` - unit test settings for Create React App
 - `./src/*/*.test.js` - unit tests for given file (e.g. `foo.js` and `foo.test.js`)
 - `./__tests__/*` - end-to-end tests
+- `./temp-db.json` - local database file, not tracked
 
 ### Frontend
 
@@ -59,17 +72,15 @@ TOKEN_TTL=token_time_to_live_in_seconds
 - `./src/components/*/*.{js,scss}` - re-usable components: unaware of Redux store/actions/thunks, styles are local only
 - `./src/pages/*/*.{js,scss}` - app pages: components, styles are local, rely on Redux store/actions/thunks
 - `./src/services/*` - services to interact with external APIs (backend, localStorage, etc.)
-- `./src/actions/*` - actions
-- `./src/thunks/*` - thunks
-- `./src/reducers/*` - reducers
+- `./src/actions` - Redux: actions
+- `./src/thunks/*` - Redux: thunks
+- `./src/store/*` - Redux: reducers and store
 - `./src/index.js` - app entry point
 - `./src/index.scss` - global styles and shared classes/variables
 - `./src/app.js` - main App component with configured React Router and Redux
-- `./src/store.js` - Redux store
 
 ### Backend
 
 - `./src/api/auth.mjs` - auth API server
 - `./src/api/main.mjs` - main API server
-- `./src/api/db.json` - database storage
-- `./src/api/dbal.mjs` - database access layer
+- `./src/api/db.mjs` - database access layer

@@ -1,32 +1,64 @@
-import React from 'react'
-import {Provider} from 'react-redux'
-import {Switch, Route, BrowserRouter, Link} from 'react-router-dom'
+import React, {useMemo} from 'react'
+import {Route, Switch, Redirect, useLocation} from 'react-router-dom'
+import {useSelector} from 'react-redux'
 
-import './app.css'
-import {Home, Products, Cart, NotFound} from './pages'
-import {store} from './store'
+import {Header} from './components'
+import {routes, permissions} from './constants'
+import {useRestoreSession} from './hooks'
+import * as pages from './pages'
+
+const routeList = [
+  [routes.HOME, pages.Home, true],
+  [routes.SIGN_IN, pages.SignIn, true],
+  [routes.SIGN_IN, pages.SignIn, false, 'authServer'],
+  [routes.SIGN_UP, pages.SignUp],
+  [routes.PRODUCTS, pages.Products],
+  [routes.CART, pages.Cart],
+  [routes.PROFILE, pages.Profile],
+  [routes.FORBIDDEN, pages.Forbidden],
+]
 
 export const App = () => {
+  const role = useSelector((state) => state.account.role)
+  const location = useLocation()
+  const restored = useRestoreSession()
+
+  const openRoutes = useMemo(
+    () => routeList.filter(([route]) => permissions[role].includes(route)),
+    [role],
+  )
+
+  if (!restored) return <p>restoring session...</p>
+
+  const allowed = openRoutes.some(([path, _, exact = false]) =>
+    exact ? location.pathname === path : location.pathname.startsWith(path),
+  )
+
+  if (!allowed) return <Redirect to={routes.FORBIDDEN} />
+
   return (
-    <Provider store={store}>
-      <BrowserRouter>
-        <header>
-          <Link to="/">Home</Link>
-          &nbsp;
-          <Link to="/products">Products</Link>
-          &nbsp;
-          <Link to="/cart">Cart</Link>
-        </header>
-        <br />
-        <main>
-          <Switch>
-            <Route exact path="/" component={Home} />
-            <Route path="/products" component={Products} />
-            <Route path="/cart" component={Cart} />
-            <Route path="*" component={NotFound} />
-          </Switch>
-        </main>
-      </BrowserRouter>
-    </Provider>
+    <>
+      <Header />
+      <br />
+      <main>
+        <Switch>
+          {openRoutes.map(
+            ([path, component, exact = false, ...routeParams]) => {
+              for (const param of routeParams) path += '/:' + param
+
+              return (
+                <Route
+                  key={path}
+                  path={path}
+                  exact={exact}
+                  component={component}
+                />
+              )
+            },
+          )}
+          <Route path="*" component={pages.NotFound} />
+        </Switch>
+      </main>
+    </>
   )
 }

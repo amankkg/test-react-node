@@ -1,24 +1,22 @@
-import React, {useState, useEffect, useMemo} from 'react'
+import React, {useEffect, useMemo} from 'react'
 import {useDispatch, useSelector} from 'react-redux'
 
-import {addToCart} from '../../actions'
 import {Emoji} from '../../components'
-import {fetchProductList} from '../../thunks'
+import {fetchProducts} from '../../thunks'
+import {statuses} from '../../constants'
 
-import {AddToCart} from './add-to-cart'
+import {ListEntry} from './list-entry'
 
 export const Products = () => {
-  const state = useSelector((state) => state.productList)
+  const state = useSelector((state) => state.products)
   const dispatch = useDispatch()
   const products = useMemo(() => Object.values(state.entries), [state.entries])
-  const [current, setCurrent] = useState(null)
-  const [currentAmount, setCurrentAmount] = useState(1)
 
   useEffect(() => {
-    if (state.status === 0) dispatch(fetchProductList())
+    if (state.status === statuses.IDLE) dispatch(fetchProducts())
   }, [dispatch, state.status])
 
-  if (state.status === 1)
+  if (state.status === statuses.PENDING)
     return (
       <div>
         <h1>Products</h1>
@@ -26,39 +24,28 @@ export const Products = () => {
       </div>
     )
 
-  const onAdd = (amount) => {
-    dispatch(addToCart(current, amount))
-    setCurrent(null)
-    setCurrentAmount(1)
-  }
-
   return (
     <div>
       <h1>Products</h1>
-      {products.length > 0 ? (
-        <ul>
-          {products.map((p, i) => (
-            <li key={p.id}>
-              <div onClick={() => setCurrent(p.id)} tabIndex={i + 1}>
-                <p>
-                  {p.title} ${p.price} qty: {p.quantity}
-                </p>
-                {current === p.id && (
-                  <AddToCart
-                    value={currentAmount}
-                    max={p.quantity}
-                    onChange={setCurrentAmount}
-                    onAdd={onAdd}
-                  />
-                )}
-              </div>
-            </li>
-          ))}
-        </ul>
-      ) : (
+      <ul>
+        {products.map((p, i) => (
+          <li key={p.id}>
+            <ListEntry
+              id={p.id}
+              title={p.title}
+              price={p.price}
+              stocks={p.quantity}
+            />
+          </li>
+        ))}
+      </ul>
+      {products.length === 0 && (
         <p>
           products not found <Emoji label="woman shrugs" content="🤷‍♀️" />
         </p>
+      )}
+      {state.status === statuses.ERROR && (
+        <p className="error">{state.error}</p>
       )}
     </div>
   )

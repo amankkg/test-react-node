@@ -10,7 +10,7 @@ GET http://localhost:3001/me
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJUWE1qdHhGbUdPS04wLUdtbDloZWciLCJpYXQiOjE1ODg0MTE2NzEsImV4cCI6MTU4ODQxMjg3MX0.h2BEMjDikk_cwql-4cCgvc_xw8C0Tw5HFZl--0CRGfs
 
 ### sign up
-POST http://localhost:3001/signup
+POST http://localhost:3002/signup
 Content-Type: application/json
 
 {
@@ -19,7 +19,7 @@ Content-Type: application/json
 }
 
 ### sign in
-POST http://localhost:3001/signin
+POST http://localhost:3002/signin
 Content-Type: application/json
 
 {
@@ -28,7 +28,7 @@ Content-Type: application/json
 }
 
 ### refresh token
-POST http://localhost:3001/token
+POST http://localhost:3002/token
 Content-Type: application/json
 
 {
@@ -36,7 +36,7 @@ Content-Type: application/json
 }
 
 ### sign out
-DELETE http://localhost:3001/signout
+DELETE http://localhost:3002/signout
 Content-Type: application/json
 
 {
