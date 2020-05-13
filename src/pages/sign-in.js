@@ -57,9 +57,7 @@ export const SignIn = () => {
         <span>via GitHub</span>
       </a>
       <br />
-      <button id="googleSignInButton" onClick={viaGoogle}>
-        via Google
-      </button>
+      <button onClick={viaGoogle}>via Google</button>
       <p>or</p>
       <form onSubmit={onSubmit}>
         <label htmlFor="login">Login</label>

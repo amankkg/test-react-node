@@ -47,6 +47,8 @@ export const signUp = (login, password, history) => async (dispatch) => {
 export const signOut = (history) => async (dispatch, getState) => {
   const token = getState().account.refreshToken
 
+  await storage.clear(process.env.REACT_APP_STORAGE_KEY)
+
   dispatch(actions.account.signedOut())
 
   try {
